@@ -27,9 +27,8 @@ def load_and_preprocess_data(csv_path="data/datos_etiquetados.csv", model_dir="m
     with open(scaler_path, 'wb') as f:
         pickle.dump(scaler, f)
     
-    # 2. Codificar etiquetas usando clase_calidad (calidad real)
+    # 2. Codificar etiquetas usando clase_calidad (calidad real: ALTA, MEDIA, BAJA)
     le = LabelEncoder()
-    # Aseguramos que clase_calidad sea string y ajustamos LabelEncoder
     df['clase_calidad'] = df['clase_calidad'].astype(str)
     encoded_labels = le.fit_transform(df['clase_calidad'])
     
@@ -43,8 +42,8 @@ def load_and_preprocess_data(csv_path="data/datos_etiquetados.csv", model_dir="m
     df_scaled['muestra_id'] = df['muestra_id'].values
     df_scaled['label_num'] = encoded_labels
     
-    # 3. Ventaneo robusto agrupando por muestra_id
-    # Cada experimento puede tener 60 o más segundos. Extraemos ventanas consecutivas de tamaño 30.
+    # 3. Ventaneo con solapamiento del 80% (Sliding Window, paso de 6 pts)
+    # Tamaño de ventana: 30 segundos, paso/stride: 6 segundos
     X_list = []
     y_list = []
     
@@ -52,8 +51,9 @@ def load_and_preprocess_data(csv_path="data/datos_etiquetados.csv", model_dir="m
         features = group[sensores].values
         label = group['label_num'].values[0]
         
-        # Extraer ventanas de tamaño 30
-        for i in range(0, len(features) - 30 + 1, 30):
+        # Extraer ventanas de tamaño 30 con paso 6 (80% solapamiento)
+        # Para 120s da exactamente 16 ventanas
+        for i in range(0, len(features) - 30 + 1, 6):
             X_list.append(features[i:i+30])
             y_list.append(label)
             
