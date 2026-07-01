@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+numpy
+scikit-learn
+# Note: For Raspberry Pi, install tflite-runtime:
+# pip install tflite-runtime
+# For desktop testing, you can use tensorflow:
+# tensorflow
+
+# Testing and SonarQube coverage libraries
+pytest
+pytest-cov
