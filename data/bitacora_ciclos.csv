@@ -1,0 +1,2 @@
+Lote_N,Fecha_Hora,Tipo_Plastico,Temp_Max_C,Frec_Muestreo_Hz,Res_ADC_bits,Latencia_Inferencia_ms,RAM_Usada_MB,Clase_Predictiva_IA,Confianza_porc,Etiqueta_Real,Concordancia
+1,2026-06-19 20:16:32,PE,380.0,1.0,16,2.92,380.53,MEDIA,100.0,MEDIA,ACERTADO

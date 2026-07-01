@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bio-E-Nose Control Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#161d1d",
+                    "secondary-container": "#d4e898",
+                    "on-secondary-container": "#586928",
+                    "surface-container": "#e8efee",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#ebf2f1",
+                    "surface-container-low": "#eef5f4",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-fixed-variant": "#1a4d5a",
+                    "on-primary-fixed": "#001a40",
+                    "on-primary": "#ffffff",
+                    "primary-fixed": "#d7e2ff",
+                    "surface-dim": "#d4dbdb",
+                    "secondary": "#546524",
+                    "on-secondary-fixed": "#161f00",
+                    "on-surface-variant": "#434750",
+                    "outline": "#747781",
+                    "on-primary-container": "#8daded",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#3d4c0d",
+                    "secondary-fixed": "#d7eb9b",
+                    "on-primary-fixed-variant": "#22467f",
+                    "surface-variant": "#dde4e3",
+                    "surface-bright": "#f4fbfa",
+                    "surface-tint": "#3d5e99",
+                    "on-tertiary-container": "#85b5c4",
+                    "on-tertiary-fixed": "#001f27",
+                    "on-error-container": "#93000a",
+                    "primary-fixed-dim": "#acc7ff",
+                    "inverse-primary": "#acc7ff",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e2eae9",
+                    "background": "#f4fbfa",
+                    "surface-container-highest": "#dde4e3",
+                    "on-surface": "#161d1d",
+                    "primary": "#00295d",
+                    "inverse-surface": "#2b3231",
+                    "tertiary": "#00303a",
+                    "secondary-fixed-dim": "#bbcf81",
+                    "tertiary-fixed-dim": "#9ecedd",
+                    "tertiary-container": "#124754",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#1b4079",
+                    "outline-variant": "#c4c6d1",
+                    "tertiary-fixed": "#baeafa",
+                    "surface": "#f4fbfa",
+                    "error": "#ba1a1a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "gutter": "16px",
+                    "panel-gap": "20px",
+                    "container-padding": "24px",
+                    "sidebar-width": "280px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "mono-data": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-lg": ["Inter"],
+                    "label-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4fbfa; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid #dde4e3;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+        .active-sensor-border {
+            border-top: 1px solid #4D7C8A;
+            border-left: 1px solid #4D7C8A;
+            border-bottom: 1px solid #8FAD88;
+            border-right: 1px solid #8FAD88;
+        }
+        .pulse-glow {
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; filter: blur(8px); }
+            50% { opacity: 0.6; filter: blur(15px); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dde4e3; border-radius: 10px; }
+        .circular-progress {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="text-on-background overflow-hidden h-screen flex">
+<!-- SIDEBAR -->
+<aside class="fixed left-0 top-0 h-full w-sidebar-width bg-primary dark:bg-primary-container text-on-primary flex flex-col p-gutter z-50 shadow-md border-r border-outline-variant">
+<div class="mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-on-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-2xl">sensors</span>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold tracking-tight leading-none">Bio-E-Nose</h1>
+<p class="font-label-sm text-label-sm opacity-70">Quality Control Systems</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-unit bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-bold transition-all duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-lg text-label-lg">Dashboard</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">sensors</span>
+<span class="font-label-lg text-label-lg">Sensors</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-lg text-label-lg">Analytics</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="font-label-lg text-label-lg">Reports</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">verified</span>
+<span class="font-label-lg text-label-lg">Quality Grades</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg" href="#">
+<span class="material-symbols-outlined">warning</span>
+<span class="font-label-lg text-label-lg">Alerts</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-4 border-t border-on-primary/10">
+<button class="w-full bg-secondary-container text-on-secondary-container font-bold py-3 rounded-lg mb-4 flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+<span class="material-symbols-outlined">ios_share</span>
+                Export Report
+            </button>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-lg text-label-lg">Settings</span>
+</a>
+<a class="flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-2 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-lg text-label-lg">Log Out</span>
+</a>
+</div>
+</aside>
+<!-- MAIN CONTENT AREA -->
+<main class="ml-sidebar-width flex-1 flex flex-col h-full bg-background overflow-hidden">
+<!-- TOP NAV BAR -->
+<header class="h-16 flex items-center justify-between px-container-padding sticky top-0 z-40 bg-surface/70 backdrop-blur-xl border-b border-surface-variant/30">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-md text-headline-md text-primary font-bold">Bio-E-Nose Control Center</h2>
+<div class="px-3 py-1 bg-secondary-container/30 text-secondary border border-secondary/20 rounded-full flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="font-label-sm text-label-sm font-bold">OPERATIONAL</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-6">
+<a class="text-primary border-b-2 border-primary font-bold pb-1 font-label-sm text-label-sm" href="#">Live View</a>
+<a class="text-on-surface-variant hover:text-primary px-2 transition-colors font-label-sm text-label-sm" href="#">Protocol</a>
+<a class="text-on-surface-variant hover:text-primary px-2 transition-colors font-label-sm text-label-sm" href="#">Calibration</a>
+</div>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-6">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high/40 text-on-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="flex items-center gap-2">
+<div class="w-9 h-9 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a laboratory quality control manager wearing a crisp white lab coat in a high-tech biofuel research facility. The lighting is clean and clinical with soft teal and navy blue atmospheric glows from background equipment. The image style is modern, sharp, and corporate." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOoNkzmT1S2-abM0IEbFEuFVgrQ49pMs0970SGkl9JbO_AqM_cCSFF_dYEBse-UK-pPJmjK4UffrRVuDDz3AgaR4hvr1eqVxLwn-waPPRhw26O-v_1IlYxhYe1MdSB1FeL7ysq1x516w4pumc_akHAMeK2gVrTNX6I-xdwpzwjo6UcloN_4lChNmKTLK6IK6Y5362UadURmergnL-gVozYhPtPUYUi8XImcLcWIUe5ausgAJVRjRIp7lRxRnGOjl6tgHTkfv-LhrM"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- DASHBOARD GRID -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-container-padding space-y-panel-gap">
+<!-- BENTO ROW 1: Hero Stats & Grade -->
+<div class="grid grid-cols-12 gap-panel-gap">
+<!-- HERO GAUGES -->
+<div class="col-span-12 lg:col-span-8 glass-panel rounded-xl p-container-padding active-sensor-border flex flex-col md:flex-row items-center justify-around gap-8">
+<div class="text-center space-y-4">
+<div class="relative w-40 h-40 flex items-center justify-center">
+<svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
+<circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary-container" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="132" stroke-linecap="round" stroke-width="8" style="stroke: #4D7C8A;"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-primary">45<span class="text-2xl">°C</span></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Temperature</span>
+</div>
+</div>
+</div>
+<div class="w-px h-24 bg-outline-variant hidden md:block"></div>
+<div class="text-center space-y-4">
+<div class="relative w-40 h-40 flex items-center justify-center">
+<svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
+<circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="230" stroke-linecap="round" stroke-width="8" style="stroke: #CBDF90;"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-primary">12<span class="text-2xl">%</span></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Humidity</span>
+</div>
+</div>
+</div>
+<div class="flex-1 text-right md:text-left">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-2">Reactor Stability</h3>
+<p class="text-body-md text-on-surface-variant max-w-xs">Atmospheric conditions are within optimal parameters for ethanol signature detection.</p>
+<div class="mt-4 flex items-center gap-2 text-secondary font-bold">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="text-label-lg">STABLE - NO DRIFT</span>
+</div>
+</div>
+</div>
+<!-- QUALITY GRADE -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-panel-gap">
+<div class="flex-1 glass-panel rounded-xl p-container-padding flex flex-col items-center justify-center text-center overflow-hidden relative border-secondary">
+<div class="absolute inset-0 bg-secondary/5"></div>
+<div class="relative z-10">
+<div class="w-24 h-24 rounded-full bg-secondary-container/50 flex items-center justify-center mb-4 mx-auto relative">
+<div class="absolute inset-0 bg-secondary/20 rounded-full pulse-glow"></div>
+<span class="material-symbols-outlined text-secondary text-5xl relative z-10" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<h3 class="font-label-sm text-label-sm text-secondary font-bold tracking-[0.2em] mb-2">BATCH QUALITY</h3>
+<div class="font-headline-lg text-headline-lg text-primary font-extrabold mb-1">GRADE A</div>
+<div class="px-4 py-1 bg-secondary text-on-secondary rounded-full font-bold text-label-sm shadow-lg shadow-secondary/20">CONFORMING</div>
+</div>
+</div>
+</div>
+</div>
+<!-- BENTO ROW 2: Sensor Waveform -->
+<div class="grid grid-cols-12 gap-panel-gap">
+<div class="col-span-12 glass-panel rounded-xl p-container-padding active-sensor-border">
+<div class="flex items-center justify-between mb-8">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-primary">Live Gas Spectroscopy</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase">E-Nose Signature Array (MQ-Series)</p>
+</div>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full" style="background-color: #1B4079;"></span>
+<span class="font-label-sm text-on-surface-variant">MQ2 (Butane)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full" style="background-color: #4D7C8A;"></span>
+<span class="font-label-sm text-on-surface-variant">MQ4 (Methane)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full" style="background-color: #8FAD88;"></span>
+<span class="font-label-sm text-on-surface-variant">MQ135 (NH3)</span>
+</div>
+</div>
+</div>
+<!-- WAVEFORM CHART (SIMULATED WITH SVG) -->
+<div class="h-64 w-full relative overflow-hidden rounded-lg bg-surface-container-low/50 p-4">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 200">
+<!-- Grid lines -->
+<line stroke="#dde4e3" stroke-dasharray="5,5" stroke-width="1" x1="0" x2="1000" y1="50" y2="50"></line>
+<line stroke="#dde4e3" stroke-dasharray="5,5" stroke-width="1" x1="0" x2="1000" y1="100" y2="100"></line>
+<line stroke="#dde4e3" stroke-dasharray="5,5" stroke-width="1" x1="0" x2="1000" y1="150" y2="150"></line>
+<!-- MQ2 Line -->
+<path d="M0,120 Q50,110 100,130 T200,100 T300,120 T400,90 T500,110 T600,130 T700,90 T800,100 T900,110 T1000,90" fill="none" stroke="#1B4079" stroke-width="3"></path>
+<!-- MQ4 Line -->
+<path d="M0,80 Q50,95 100,75 T200,85 T300,70 T400,90 T500,75 T600,85 T700,70 T800,95 T900,80 T1000,75" fill="none" stroke="#4D7C8A" stroke-width="3"></path>
+<!-- MQ135 Line -->
+<path d="M0,150 Q50,140 100,155 T200,145 T300,150 T400,135 T500,145 T600,155 T700,140 T800,150 T900,145 T1000,140" fill="none" stroke="#8FAD88" stroke-width="3"></path>
+</svg>
+<!-- Overlay gradient for depth -->
+<div class="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-surface-container-low/80"></div>
+</div>
+</div>
+</div>
+<!-- BENTO ROW 3: Alert Log & Detail Panels -->
+<div class="grid grid-cols-12 gap-panel-gap pb-10">
+<!-- ALERT LOG -->
+<div class="col-span-12 lg:col-span-8 glass-panel rounded-xl overflow-hidden">
+<div class="p-gutter border-b border-surface-variant flex items-center justify-between bg-surface-container-high/20">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">history</span>
+                            System Analytics Log
+                        </h3>
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 text-label-sm font-bold text-on-surface-variant hover:text-primary">View All</button>
+<span class="material-symbols-outlined text-on-surface-variant">filter_list</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="p-4 font-label-lg text-primary">Timestamp</th>
+<th class="p-4 font-label-lg text-primary">Sensor Source</th>
+<th class="p-4 font-label-lg text-primary">Z-Score</th>
+<th class="p-4 font-label-lg text-primary">Detection</th>
+<th class="p-4 font-label-lg text-primary text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-body-md">
+<!-- Grade A Row -->
+<tr class="border-b border-surface-variant/20 bg-secondary-fixed/10 hover:bg-secondary-fixed/20 transition-colors">
+<td class="p-4 font-mono-data text-on-surface-variant">14:22:15</td>
+<td class="p-4 font-medium">MQ-4 Array</td>
+<td class="p-4 text-secondary">0.12</td>
+<td class="p-4">Baseline Ethanol</td>
+<td class="p-4 text-right">
+<span class="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-bold">Grade A</span>
+</td>
+</tr>
+<!-- Grade B Row -->
+<tr class="border-b border-surface-variant/20 bg-amber-50/50 hover:bg-amber-100/50 transition-colors">
+<td class="p-4 font-mono-data text-on-surface-variant">14:18:02</td>
+<td class="p-4 font-medium">MQ-135 Array</td>
+<td class="p-4 text-amber-700">1.84</td>
+<td class="p-4">Trace Ammonia</td>
+<td class="p-4 text-right">
+<span class="px-3 py-1 rounded-full bg-amber-200 text-amber-900 text-label-sm font-bold">Grade B</span>
+</td>
+</tr>
+<!-- Grade C Row -->
+<tr class="border-b border-surface-variant/20 bg-error-container/10 hover:bg-error-container/20 transition-colors">
+<td class="p-4 font-mono-data text-on-surface-variant">13:55:40</td>
+<td class="p-4 font-medium">Global Array</td>
+<td class="p-4 text-error">4.52</td>
+<td class="p-4">Contamination Spike</td>
+<td class="p-4 text-right">
+<span class="px-3 py-1 rounded-full bg-error-container text-on-error-container text-label-sm font-bold">Grade C</span>
+</td>
+</tr>
+<!-- Grade A Row -->
+<tr class="border-b border-surface-variant/20 bg-secondary-fixed/10">
+<td class="p-4 font-mono-data text-on-surface-variant">13:42:11</td>
+<td class="p-4 font-medium">MQ-2 Array</td>
+<td class="p-4 text-secondary">-0.05</td>
+<td class="p-4">High Purity Signal</td>
+<td class="p-4 text-right">
+<span class="px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed text-label-sm font-bold">Grade A</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- DIAGNOSTIC PANEL -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-panel-gap">
+<div class="glass-panel rounded-xl p-gutter active-sensor-border flex-1">
+<h4 class="font-label-sm text-label-sm text-primary font-bold mb-4 uppercase tracking-wider">Calibration Integrity</h4>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<span class="text-body-md text-on-surface-variant">Electronic Offset</span>
+<span class="font-mono-data font-bold">0.002%</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[98%]"></div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-body-md text-on-surface-variant">Sensor Sensitivity</span>
+<span class="font-mono-data font-bold">Optimal</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[94%]"></div>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-body-md text-on-surface-variant">Fan Cooling Speed</span>
+<span class="font-mono-data font-bold">2400 RPM</span>
+</div>
+<div class="w-full h-1 bg-surface-container rounded-full overflow-hidden">
+<div class="bg-primary-container h-full w-[65%]"></div>
+</div>
+</div>
+<div class="mt-8 p-4 bg-primary rounded-lg text-white">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary-fixed">info</span>
+<span class="font-label-lg">Next Calibration</span>
+</div>
+<p class="text-label-sm opacity-80">Scheduled in 12 hours. Automatic system flush active in 45 mins.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MOBILE NAV (Hidden on desktop) -->
+<footer class="md:hidden h-16 bg-surface-container-lowest border-t border-surface-variant flex items-center justify-around fixed bottom-0 left-0 w-full z-50">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="text-[10px] font-bold">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">sensors</span>
+<span class="text-[10px]">Sensors</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-primary flex items-center justify-center -mt-8 shadow-lg shadow-primary/30 border-4 border-surface">
+<span class="material-symbols-outlined text-white">add</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-[10px]">Stats</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[10px]">Set</span>
+</button>
+</footer>
+</main>
+<!-- FLOATING ACTION BUTTON (Only relevant for Home/Dashboard) -->
+<div class="fixed bottom-8 right-8 z-50 hidden md:block">
+<button class="flex items-center gap-2 bg-primary text-on-primary px-6 py-4 rounded-full shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-label-lg">Start Quick Scan</span>
+</button>
+</div>
+<script>
+        // Simple interactive micro-interactions
+        document.querySelectorAll('nav a, table tr').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.classList.add('scale-[0.98]');
+            });
+            el.addEventListener('mouseup', () => {
+                el.classList.remove('scale-[0.98]');
+            });
+            el.addEventListener('mouseleave', () => {
+                el.classList.remove('scale-[0.98]');
+            });
+        });
+
+        // Simulating live data update for "Operational" pulse
+        setInterval(() => {
+            const tempVal = document.querySelector('.text-display-lg');
+            if(tempVal && tempVal.innerText.includes('45')) {
+                const randomShift = (Math.random() * 0.4 - 0.2).toFixed(1);
+                const current = 45;
+                // Just for visual effect, doesn't persist
+            }
+        }, 3000);
+    </script>
+</body></html>
