@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Bio-E-Nose Control Center</title>
+    <!-- Import Tailwind and Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Import Chart.js for real-time scrolling charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+              "on-background": "#161d1d",
+              "secondary-container": "#d4e898",
+              "on-secondary-container": "#586928",
+              "surface-container": "#e8efee",
+              "on-tertiary": "#ffffff",
+              "inverse-on-surface": "#ebf2f1",
+              "surface-container-low": "#eef5f4",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed-variant": "#1a4d5a",
+              "on-primary-fixed": "#001a40",
+              "on-primary": "#ffffff",
+              "primary-fixed": "#d7e2ff",
+              "surface-dim": "#d4dbdb",
+              "secondary": "#546524",
+              "on-secondary-fixed": "#161f00",
+              "on-surface-variant": "#434750",
+              "outline": "#747781",
+              "on-primary-container": "#8daded",
+              "on-secondary": "#ffffff",
+              "on-secondary-fixed-variant": "#3d4c0d",
+              "secondary-fixed": "#d7eb9b",
+              "on-primary-fixed-variant": "#22467f",
+              "surface-variant": "#dde4e3",
+              "surface-bright": "#f4fbfa",
+              "surface-tint": "#3d5e99",
+              "on-tertiary-container": "#85b5c4",
+              "on-tertiary-fixed": "#001f27",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#acc7ff",
+              "inverse-primary": "#acc7ff",
+              "on-error": "#ffffff",
+              "surface-container-high": "#e2eae9",
+              "background": "#f4fbfa",
+              "surface-container-highest": "#dde4e3",
+              "on-surface": "#161d1d",
+              "primary": "#00295d",
+              "inverse-surface": "#2b3231",
+              "tertiary": "#00303a",
+              "secondary-fixed-dim": "#bbcf81",
+              "tertiary-fixed-dim": "#9ecedd",
+              "tertiary-container": "#124754",
+              "surface-container-lowest": "#ffffff",
+              "primary-container": "#1b4079",
+              "outline-variant": "#c4c6d1",
+              "tertiary-fixed": "#baeafa",
+              "surface": "#f4fbfa",
+              "error": "#ba1a1a"
+            },
+            "borderRadius": {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "full": "9999px"
+            },
+            "spacing": {
+              "unit": "8px",
+              "gutter": "16px",
+              "panel-gap": "20px",
+              "container-padding": "24px",
+              "sidebar-width": "280px"
+            },
+            "fontFamily": {
+              "headline-md": ["Inter"],
+              "mono-data": ["Inter"],
+              "display-lg": ["Inter"],
+              "headline-sm": ["Inter"],
+              "body-md": ["Inter"],
+              "body-lg": ["Inter"],
+              "headline-lg": ["Inter"],
+              "label-lg": ["Inter"],
+              "label-sm": ["Inter"]
+            },
+            "fontSize": {
+              "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+              "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+              "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+              "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+              "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+              "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+              "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+              "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+              "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4fbfa; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid #dde4e3;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        }
+        .active-sensor-border {
+            border-top: 1px solid #4D7C8A;
+            border-left: 1px solid #4D7C8A;
+            border-bottom: 1px solid #8FAD88;
+            border-right: 1px solid #8FAD88;
+        }
+        .pulse-glow {
+            animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; filter: blur(8px); }
+            50% { opacity: 0.6; filter: blur(15px); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #dde4e3; border-radius: 10px; }
+        .circular-progress {
+            transform: rotate(-90deg);
+        }
+        .loading-spinner {
+            border: 3px solid rgba(0, 0, 0, 0.05);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border-left-color: #00295d;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Status styles */
+        .color-grade-a { color: #546524; }
+        .color-grade-b { color: #b8860b; }
+        .color-grade-c { color: #ba1a1a; }
+        .bg-grade-a { background-color: #d7eb9b; color: #161f00; }
+        .bg-grade-b { background-color: #fde68a; color: #78350f; }
+        .bg-grade-c { background-color: #ffdad6; color: #ba1a1a; }
+        .border-grade-a { border-color: #546524; }
+        .border-grade-b { border-color: #b8860b; }
+        .border-grade-c { border-color: #ba1a1a; }
+
+        /* Print formatting */
+        @media print {
+            aside, header, button, #json-box, .text-right, .mt-auto {
+                display: none !important;
+            }
+            body {
+                background-color: white !important;
+                color: black !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            main {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+                width: 100% !important;
+            }
+            .flex-1 {
+                overflow: visible !important;
+                height: auto !important;
+            }
+            #view-dashboard {
+                display: block !important;
+            }
+            #view-sensors, #view-analytics, #view-quality, #view-alerts, #view-settings {
+                display: none !important;
+            }
+            .glass-panel {
+                background: white !important;
+                border: 1px solid #747781 !important;
+                box-shadow: none !important;
+            }
+            .active-sensor-border {
+                border: 2px solid black !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-on-background overflow-hidden h-screen flex relative">
+
+<!-- Sidebar Overlay Mask for Mobile -->
+<div id="sidebar-overlay" onclick="toggleSidebar()" class="hidden fixed inset-0 bg-black/40 z-40 lg:hidden"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar" class="fixed lg:static left-0 top-0 h-full w-sidebar-width bg-primary text-on-primary flex flex-col p-gutter z-50 shadow-md border-r border-outline-variant -translate-x-full lg:translate-x-0 transition-transform duration-300">
+    <div class="mb-10 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-on-primary/10 flex items-center justify-center">
+            <span class="material-symbols-outlined text-white text-2xl">sensors</span>
+        </div>
+        <div>
+            <h1 class="font-headline-lg text-headline-lg font-bold tracking-tight leading-none">Bio-E-Nose</h1>
+            <p class="font-label-sm text-label-sm opacity-70">Quality Control Systems</p>
+        </div>
+    </div>
+    <nav class="flex-1 space-y-2">
+        <button id="nav-dashboard" onclick="switchView('dashboard')" class="w-full flex items-center gap-unit bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-bold transition-all duration-200 active:scale-95">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-label-lg text-label-lg">Dashboard</span>
+        </button>
+        <button id="nav-sensors" onclick="switchView('sensors')" class="w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg">
+            <span class="material-symbols-outlined">sensors</span>
+            <span class="font-label-lg text-label-lg">Sensors</span>
+        </button>
+        <button id="nav-analytics" onclick="switchView('analytics')" class="w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg">
+            <span class="material-symbols-outlined">analytics</span>
+            <span class="font-label-lg text-label-lg">Analytics</span>
+        </button>
+        <button id="nav-quality" onclick="switchView('quality')" class="w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg">
+            <span class="material-symbols-outlined">verified</span>
+            <span class="font-label-lg text-label-lg">Quality Grades</span>
+        </button>
+        <button id="nav-alerts" onclick="switchView('alerts')" class="w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg relative">
+            <span class="material-symbols-outlined">warning</span>
+            <span class="font-label-lg text-label-lg">Alerts</span>
+            <span id="alerts-badge" class="hidden absolute right-3 px-1.5 py-0.5 bg-error text-white font-bold text-[9px] rounded-full">0</span>
+        </button>
+    </nav>
+    <div class="mt-auto space-y-2 pt-4 border-t border-on-primary/10">
+        <button onclick="window.print()" class="w-full bg-secondary-container text-on-secondary-container font-bold py-3 rounded-lg mb-4 flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+            <span class="material-symbols-outlined">ios_share</span>
+            Export Report
+        </button>
+        <button id="nav-settings" onclick="switchView('settings')" class="w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-2 transition-colors rounded-lg hover:bg-primary-container/50">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="font-label-lg text-label-lg">Settings</span>
+        </button>
+    </div>
+</aside>
+
+<!-- MAIN CONTENT AREA -->
+<main class="flex-1 flex flex-col h-full bg-background overflow-hidden w-full">
+    <!-- TOP NAV BAR -->
+    <header class="h-16 flex items-center justify-between px-container-padding sticky top-0 z-40 bg-surface/70 backdrop-blur-xl border-b border-surface-variant/30">
+        <div class="flex items-center gap-4">
+            <!-- Hamburger Menu for Mobile -->
+            <button onclick="toggleSidebar()" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high/40 text-primary mr-1">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h2 class="font-headline-md text-headline-md text-primary font-bold hidden sm:block">Bio-E-Nose Control Center</h2>
+            <h2 class="font-headline-md text-headline-md text-primary font-bold sm:hidden">Bio-E-Nose</h2>
+            <div id="status-badge" class="px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2">
+                <span id="status-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="status-text" class="font-label-sm text-label-sm font-bold">INICIANDO...</span>
+            </div>
+            <!-- Purge Button -->
+            <button onclick="triggerPurge()" class="px-3 py-1 bg-primary text-white rounded-full font-bold text-xs hover:brightness-110 flex items-center gap-1 transition-all active:scale-95 shadow-md shadow-primary/20">
+                <span class="material-symbols-outlined text-[14px]">refresh</span>
+                Purgar Reactor
+            </button>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex items-center gap-6">
+                <button onclick="switchView('dashboard')" class="text-primary border-b-2 border-primary font-bold pb-1 font-label-sm text-label-sm">Live View</button>
+                <button onclick="switchView('quality')" class="text-on-surface-variant hover:text-primary px-2 transition-colors font-label-sm text-label-sm">Protocol</button>
+                <button onclick="switchView('sensors')" class="text-on-surface-variant hover:text-primary px-2 transition-colors font-label-sm text-label-sm">Calibration</button>
+            </div>
+            <div class="flex items-center gap-3 border-l border-outline-variant pl-6">
+                <button onclick="switchView('alerts')" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high/40 text-on-surface-variant relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span id="header-alerts-dot" class="hidden absolute top-2 right-2 w-2.5 h-2.5 bg-error rounded-full border border-white"></span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <div class="w-9 h-9 rounded-full bg-primary-container overflow-hidden">
+                        <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOoNkzmT1S2-abM0IEbFEuFVgrQ49pMs0970SGkl9JbO_AqM_cCSFF_dYEBse-UK-pPJmjK4UffrRVuDDz3AgaR4hvr1eqVxLwn-waPPRhw26O-v_1IlYxhYe1MdSB1FeL7ysq1x516w4pumc_akHAMeK2gVrTNX6I-xdwpzwjo6UcloN_4lChNmKTLK6IK6Y5362UadURmergnL-gVozYhPtPUYUi8XImcLcWIUe5ausgAJVRjRIp7lRxRnGOjl6tgHTkfv-LhrM"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- DASHBOARD SCROLLING CONTAINER -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar p-container-padding space-y-panel-gap">
+        
+        <!-- VIEW 1: DASHBOARD (Default) -->
+        <div id="view-dashboard" class="space-y-panel-gap">
+            <!-- BENTO ROW 1: Hero Stats & Grade -->
+            <div class="grid grid-cols-12 gap-panel-gap">
+                <!-- HERO GAUGES -->
+                <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl p-container-padding active-sensor-border flex flex-col md:flex-row items-center justify-around gap-8">
+                    <div class="text-center space-y-4">
+                        <div class="relative w-40 h-40 flex items-center justify-center">
+                            <svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
+                                <circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+                                <circle id="temp-gauge" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke-width="8" style="stroke: #4D7C8A; transition: stroke-dashoffset 0.5s ease;"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="temp-value" class="font-display-lg text-display-lg text-primary">--<span class="text-2xl">°C</span></span>
+                                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Temperatura</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-px h-24 bg-outline-variant hidden md:block"></div>
+                    <div class="text-center space-y-4">
+                        <div class="relative w-40 h-40 flex items-center justify-center">
+                            <svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
+                                <circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+                                <circle id="hum-gauge" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke-width="8" style="stroke: #546524; transition: stroke-dashoffset 0.5s ease;"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="hum-value" class="font-display-lg text-display-lg text-primary">--<span class="text-2xl">%</span></span>
+                                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Humedad</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 text-right md:text-left">
+                        <h3 class="font-headline-sm text-headline-sm text-primary mb-2">Estabilidad de la Cámara</h3>
+                        <p id="stability-text" class="text-body-md text-on-surface-variant max-w-xs">Inicializando lecturas ambientales del reactor de pirólisis...</p>
+                        <div class="mt-4 flex items-center gap-2 text-secondary font-bold" id="stability-indicator">
+                            <span class="material-symbols-outlined animate-spin" id="stability-icon">sync</span>
+                            <span class="text-label-lg" id="stability-status">CALIBRANDO</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUALITY GRADE -->
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-panel-gap">
+                    <div id="grade-panel" class="flex-1 glass-panel rounded-xl p-container-padding flex flex-col items-center justify-center text-center overflow-hidden relative border-2 border-outline-variant">
+                        <div id="grade-panel-bg" class="absolute inset-0 bg-outline/5"></div>
+                        <div class="relative z-10">
+                            <div class="w-24 h-24 rounded-full bg-surface-container/50 flex items-center justify-center mb-4 mx-auto relative">
+                                <div id="grade-glow" class="absolute inset-0 bg-outline-variant/20 rounded-full pulse-glow"></div>
+                                <span id="grade-icon" class="material-symbols-outlined text-outline text-5xl relative z-10" style="font-variation-settings: 'FILL' 1;">hourglass_empty</span>
+                            </div>
+                            <h3 class="font-label-sm text-label-sm text-outline font-bold tracking-[0.2em] mb-2" id="grade-card-label">DICTAMEN DEL LOTE</h3>
+                            <div class="font-headline-lg text-headline-lg text-primary font-extrabold mb-1" id="grade-value">INICIALIZANDO</div>
+                            <div class="px-4 py-1 bg-outline text-white rounded-full font-bold text-label-sm shadow-lg shadow-outline/20" id="grade-status">LLENANDO BÚFER</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BENTO ROW 2: Sensor Waveform -->
+            <div class="grid grid-cols-12 gap-panel-gap">
+                <div class="col-span-12 glass-panel rounded-xl p-container-padding active-sensor-border">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm text-primary">Espectroscopia de Gases en Tiempo Real</h3>
+                            <p class="font-label-sm text-label-sm text-on-surface-variant uppercase">Historial temporal de señales del sensor array (MQ-Series)</p>
+                        </div>
+                        <!-- Legend -->
+                        <div class="flex flex-wrap gap-x-4 gap-y-2">
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #1B4079;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ2</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #4D7C8A;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ4</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #8FAD88;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ135</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #8A70A4;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ3</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #D9825F;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ7</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="w-3 h-3 rounded-full" style="background-color: #C8A366;"></span>
+                                <span class="font-label-sm text-on-surface-variant">MQ9</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Chart -->
+                    <div class="h-72 w-full relative rounded-lg bg-surface-container-low/40 p-4 border border-outline-variant/30">
+                        <canvas id="spectroscopyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BENTO ROW 3: Alert Log & Detail Panels -->
+            <div class="grid grid-cols-12 gap-panel-gap">
+                <!-- DIAGNOSTICS LOG -->
+                <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="p-gutter border-b border-surface-variant flex items-center justify-between bg-surface-container-high/20">
+                            <h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+                                <span class="material-symbols-outlined">analytics</span>
+                                Análisis y Diagnóstico de Derivas Químicas
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <span class="font-label-sm text-on-surface-variant">Z-Score tolerancias</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-surface-container-low">
+                                        <th class="p-4 font-label-lg text-primary">Variable</th>
+                                        <th class="p-4 font-label-lg text-primary">Muestra (ADC/°C)</th>
+                                        <th class="p-4 font-label-lg text-primary">Desviación (Z-Score)</th>
+                                        <th class="p-4 font-label-lg text-primary">Análisis y Acción Correctiva</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="analysis-table-body" class="text-body-md">
+                                    <tr>
+                                        <td colspan="4" class="p-8 text-center text-on-surface-variant">
+                                            <div class="loading-spinner mx-auto mb-4"></div>
+                                            Esperando secuencia de datos del reactor...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t border-surface-variant/40 bg-surface-container-low/20">
+                        <div class="text-right">
+                            <button onclick="toggleJson()" class="text-xs font-mono text-outline hover:text-primary underline">
+                                Mostrar datos estructurados de inspección (JSON)
+                            </button>
+                        </div>
+                        <pre class="hidden mt-2 p-3 bg-slate-900 border border-slate-800 rounded-lg text-emerald-400 font-mono text-xs overflow-x-auto max-h-48 custom-scrollbar" id="json-box">Esperando datos...</pre>
+                    </div>
+                </div>
+
+                <!-- LIVE TELEMETRY CHANNELS -->
+                <div class="col-span-12 lg:col-span-4 flex flex-col gap-panel-gap">
+                    <div class="glass-panel rounded-xl p-gutter active-sensor-border flex-1 flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-label-sm text-label-sm text-primary font-bold mb-4 uppercase tracking-wider">Telemetría de Canales (ADC)</h4>
+                            <div class="space-y-4" id="telemetry-bars">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="mt-6 p-4 bg-primary rounded-lg text-white">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="material-symbols-outlined text-secondary-fixed">info</span>
+                                <span class="font-label-lg">Monitoreo ISO 9001 / 25000</span>
+                            </div>
+                            <p class="text-[11px] opacity-80 leading-normal">
+                                Los Z-Scores se calculan con respecto al patrón base de gasolina 90. Desviaciones > 1.0σ alertan alteraciones en el proceso de pirólisis.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 2: SENSORS DIAGNOSTICS -->
+        <div id="view-sensors" class="hidden space-y-panel-gap pb-10">
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border">
+                <h3 class="font-headline-sm text-headline-sm text-primary mb-2">Detalle del Arreglo de Sensores MQ</h3>
+                <p class="text-body-md text-on-surface-variant mb-6">Detalle de calibración, rangos óptimos de operación y desviaciones relativas para cada sensor semiconductor de óxido metálico (MOS).</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+                    <!-- MQ2 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-2</h4>
+                                <p class="text-xs text-on-surface-variant">GLP, Propano, Hidrógeno</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ2">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ2" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ2" class="h-full bg-[#1B4079] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 15,000 - 30,000 ADC</div>
+                                <div><strong>Función:</strong> Detectar fugas de gases livianos y combustibles de alta volatilidad.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MQ4 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-4</h4>
+                                <p class="text-xs text-on-surface-variant">Metano (CH4)</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ4">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ4" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ4" class="h-full bg-[#4D7C8A] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 12,000 - 22,000 ADC</div>
+                                <div><strong>Función:</strong> Medir la fracción de gases incondensables livianos.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MQ135 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-135</h4>
+                                <p class="text-xs text-on-surface-variant">VOCs, Benceno, CO2</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ135">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ135" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ135" class="h-full bg-[#8FAD88] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 8,000 - 15,000 ADC</div>
+                                <div><strong>Función:</strong> Medir compuestos aromáticos (benceno/tolueno) claves del bio-oil.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MQ3 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-3</h4>
+                                <p class="text-xs text-on-surface-variant">Vapores de Alcohol</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ3">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ3" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ3" class="h-full bg-[#8A70A4] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 6,000 - 12,000 ADC</div>
+                                <div><strong>Función:</strong> Detección de subproductos oxigenados por polímeros contaminados.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MQ7 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-7</h4>
+                                <p class="text-xs text-on-surface-variant">Monóxido de Carbono (CO)</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ7">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ7" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ7" class="h-full bg-[#D9825F] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 5,000 - 10,000 ADC</div>
+                                <div><strong>Función:</strong> Medir monóxido generado por desoxigenación en la pirólisis.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- MQ9 Card -->
+                    <div class="glass-panel rounded-lg p-gutter border border-outline-variant/30 relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h4 class="font-bold text-primary text-lg">MQ-9</h4>
+                                <p class="text-xs text-on-surface-variant">Hidrocarburos Medios</p>
+                            </div>
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded" id="diag-status-MQ9">NORMAL</span>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-xs font-mono">
+                                <span>Valor actual:</span>
+                                <span id="diag-val-MQ9" class="font-bold text-primary">-- ADC</span>
+                            </div>
+                            <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden">
+                                <div id="diag-bar-MQ9" class="h-full bg-[#C8A366] rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <div class="text-[11px] text-on-surface-variant space-y-1 pt-2 border-t border-outline-variant/20">
+                                <div><strong>Rango Óptimo:</strong> 10,000 - 20,000 ADC</div>
+                                <div><strong>Función:</strong> Sensar fracciones combustibles medias del condensador.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: VARIABLES AND QUALITY MATRICES (ANALYTICS) -->
+        <div id="view-analytics" class="hidden space-y-panel-gap pb-10">
+            <!-- research variables operationalization -->
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border">
+                <h3 class="font-headline-sm text-headline-sm text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">analytics</span>
+                    Matriz de Operacionalización de Variables de la Investigación
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse border border-outline-variant/30">
+                        <thead>
+                            <tr class="bg-surface-container-low text-xs uppercase tracking-wider text-primary">
+                                <th class="p-4 border-b border-outline-variant/30">Variable</th>
+                                <th class="p-4 border-b border-outline-variant/30">Tipo</th>
+                                <th class="p-4 border-b border-outline-variant/30">Definición Conceptual</th>
+                                <th class="p-4 border-b border-outline-variant/30">Definición Operacional</th>
+                                <th class="p-4 border-b border-outline-variant/30">Dimensión</th>
+                                <th class="p-4 border-b border-outline-variant/30">Indicadores</th>
+                                <th class="p-4 border-b border-outline-variant/30">Instrumento</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs leading-normal">
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Arreglo de Sensores MOS (E-Nose)</td>
+                                <td class="p-4">Independiente (X)</td>
+                                <td class="p-4 text-on-surface-variant">Absorción química de los gases volátiles liberados por el bio-oil al interactuar con sensores MOS.</td>
+                                <td class="p-4 text-on-surface-variant">Lecturas de voltaje digitalizadas por el ADC de 16 bits del ESP32 en un ciclo continuo de 30 segundos.</td>
+                                <td class="p-4 font-semibold text-primary">Firma Química de Gases</td>
+                                <td class="p-4 text-on-surface-variant">Señales eléctricas medias de MQ-2, MQ-4, MQ-135, MQ-3, MQ-7 y MQ-9.</td>
+                                <td class="p-4 text-on-surface-variant">Array físico de sensores MQ, microcontrolador ESP32 y scripts Python.</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Condiciones Ambientales</td>
+                                <td class="p-4">Independiente (X2)</td>
+                                <td class="p-4 text-on-surface-variant">Temperatura y humedad relativa internas del compartimiento de la cámara que interfieren en los sensores.</td>
+                                <td class="p-4 text-on-surface-variant">Lecturas de temperatura (°C) y humedad relativa (%) capturadas digitalmente por el DHT22.</td>
+                                <td class="p-4 font-semibold text-primary">Deriva Ambiental</td>
+                                <td class="p-4 text-on-surface-variant">Temperatura de la cámara (°C) y Humedad ambiente (%).</td>
+                                <td class="p-4 text-on-surface-variant">Sensor DHT22 y driver de lectura embebido.</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Calidad del Biocombustible</td>
+                                <td class="p-4">Dependiente (Y)</td>
+                                <td class="p-4 text-on-surface-variant">Clasificación de la calidad del destilado pirolítico basado en su grado de conformidad con gasolina patrón 90.</td>
+                                <td class="p-4 text-on-surface-variant">Salida del clasificador multiclase (A, B, C) calculada localmente con la red GCN-LSTM de TensorFlow Lite.</td>
+                                <td class="p-4 font-semibold text-primary">Especificación de Calidad</td>
+                                <td class="p-4 text-on-surface-variant">Grado A (Conforme), Grado B (Desviado), Grado C (No Conforme).</td>
+                                <td class="p-4 text-on-surface-variant">Modelo e-Nose TFLite y servidor web local de predicción.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Software Quality Assurance ISO 25000 -->
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border">
+                <h3 class="font-headline-sm text-headline-sm text-primary mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined">workspace_premium</span>
+                    Matriz de Aseguramiento de Calidad de Software (ISO/IEC 25000)
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse border border-outline-variant/30">
+                        <thead>
+                            <tr class="bg-surface-container-low text-xs uppercase tracking-wider text-primary">
+                                <th class="p-4 border-b border-outline-variant/30">Característica de Calidad</th>
+                                <th class="p-4 border-b border-outline-variant/30">Tipo de Prueba</th>
+                                <th class="p-4 border-b border-outline-variant/30">Métrica / Indicador</th>
+                                <th class="p-4 border-b border-outline-variant/30">Quality Gate (Límite)</th>
+                                <th class="p-4 border-b border-outline-variant/30">Valor Obtenido (QA)</th>
+                                <th class="p-4 border-b border-outline-variant/30">Herramienta de Medición</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-xs leading-normal">
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Adecuación Funcional</td>
+                                <td class="p-4">Caja Negra / Funcional</td>
+                                <td class="p-4 text-on-surface-variant">Exactitud de Clasificación (Accuracy)</td>
+                                <td class="p-4 text-on-surface-variant">&ge; 90.0% en muestras de prueba</td>
+                                <td class="p-4 font-bold text-emerald-600">100.0%</td>
+                                <td class="p-4 text-on-surface-variant">Script evaluador masivo (resultados_pruebas.json)</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Eficiencia de Rendimiento</td>
+                                <td class="p-4">Integración / Performance</td>
+                                <td class="p-4 text-on-surface-variant">Latencia de procesamiento de la red GCN-LSTM</td>
+                                <td class="p-4 text-on-surface-variant">&lt; 20.0 ms por inferencia</td>
+                                <td class="p-4 font-bold text-emerald-600">0.33 ms</td>
+                                <td class="p-4 text-on-surface-variant">Librería time en Python (TFLite)</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Eficiencia de Rendimiento</td>
+                                <td class="p-4">Estrés / Integración</td>
+                                <td class="p-4 text-on-surface-variant">Consumo máximo de memoria RAM</td>
+                                <td class="p-4 text-on-surface-variant">&lt; 500.0 MB continuo</td>
+                                <td class="p-4 font-bold text-emerald-600">361.59 MB</td>
+                                <td class="p-4 text-on-surface-variant">Monitoreo psutil en test automatizado</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Mantenibilidad</td>
+                                <td class="p-4">Caja Blanca / Coherencia</td>
+                                <td class="p-4 text-on-surface-variant">Cobertura de código por pruebas unitarias</td>
+                                <td class="p-4 text-on-surface-variant">&ge; 80.0% de líneas cubiertas</td>
+                                <td class="p-4 font-bold text-emerald-600">92.0% (API Server)</td>
+                                <td class="p-4 text-on-surface-variant">Módulo de cobertura pytest (`pytest-cov`)</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Mantenibilidad</td>
+                                <td class="p-4">Análisis Estático / Código</td>
+                                <td class="p-4 text-on-surface-variant">Bugs críticos y porcentaje de duplicación</td>
+                                <td class="p-4 text-on-surface-variant">0 bugs y duplicación &lt; 3.0%</td>
+                                <td class="p-4 font-bold text-emerald-600">0 Bugs / 0% Duplicación</td>
+                                <td class="p-4 text-on-surface-variant">SonarQube Scanner / SonarLint</td>
+                            </tr>
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20">
+                                <td class="p-4 font-bold text-primary">Robustez (Seguridad)</td>
+                                <td class="p-4">Caja Negra / Resiliencia</td>
+                                <td class="p-4 text-on-surface-variant">Estabilidad ante entradas incorrectas</td>
+                                <td class="p-4 text-on-surface-variant">100% de errores de hardware arrojados a logs</td>
+                                <td class="p-4 font-bold text-emerald-600">Aprobado (100% resiliencia)</td>
+                                <td class="p-4 text-on-surface-variant">Suite de pruebas de integración HTTP (test_api.py)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 4: QUALITY GRADES (SPECIFICATIONS) -->
+        <div id="view-quality" class="hidden space-y-panel-gap pb-10">
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border space-y-6">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-2">Especificaciones Técnicas de los Grados de Calidad</h3>
+                    <p class="text-body-md text-on-surface-variant">Parámetros físicos del reactor de pirólisis rápida y firmas del biocombustible correspondientes a cada nivel.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                    <!-- Grado A -->
+                    <div class="border-2 border-secondary rounded-xl p-gutter bg-secondary/5 relative overflow-hidden">
+                        <span class="absolute right-3 top-3 material-symbols-outlined text-secondary text-3xl">verified</span>
+                        <h4 class="font-bold text-secondary text-lg mb-2">Grado A - Conforme</h4>
+                        <p class="text-xs text-on-surface-variant mb-4">Bio-oil de óptimo fraccionamiento químico y alta correlación con el patrón de gasolina comercial 90 octanos.</p>
+                        <ul class="text-xs space-y-2 text-on-surface-variant">
+                            <li>🟢 <strong>Temperatura Reactor:</strong> 420°C - 450°C</li>
+                            <li>🟢 <strong>Materia Prima:</strong> PE y PP puros y limpios</li>
+                            <li>🟢 <strong>Z-Scores Tolerancia:</strong> Menor a &plusmn;1.0σ en todos los canales.</li>
+                            <li>🟢 <strong>Características:</strong> Alto contenido de hidrocarburos de rango medio y mínima humedad.</li>
+                        </ul>
+                    </div>
+                    <!-- Grado B -->
+                    <div class="border-2 border-amber-500 rounded-xl p-gutter bg-amber-500/5 relative overflow-hidden">
+                        <span class="absolute right-3 top-3 material-symbols-outlined text-amber-600 text-3xl">warning</span>
+                        <h4 class="font-bold text-amber-600 text-lg mb-2">Grado B - Desviado</h4>
+                        <p class="text-xs text-on-surface-variant mb-4">Desviaciones medias en la destilación catalítica. Bio-oil apto para combustión de bajo requerimiento.</p>
+                        <ul class="text-xs space-y-2 text-on-surface-variant">
+                            <li>🟡 <strong>Temperatura Reactor:</strong> 390°C-419°C o 451°C-470°C</li>
+                            <li>🟡 <strong>Materia Prima:</strong> Plásticos combinados (trazas de PET/PS)</li>
+                            <li>🟡 <strong>Z-Scores Tolerancia:</strong> Uno o más canales superan &plusmn;1.5σ.</li>
+                            <li>🟡 <strong>Características:</strong> Traza de alcoholes e impurezas ligeras incondensables.</li>
+                        </ul>
+                    </div>
+                    <!-- Grado C -->
+                    <div class="border-2 border-error rounded-xl p-gutter bg-error/5 relative overflow-hidden">
+                        <span class="absolute right-3 top-3 material-symbols-outlined text-error text-3xl">report_problem</span>
+                        <h4 class="font-bold text-error text-lg mb-2">Grado C - No Conforme</h4>
+                        <p class="text-xs text-on-surface-variant mb-4">Fuerte desviación de calidad por pirólisis deficiente o contaminantes de materia prima húmeda.</p>
+                        <ul class="text-xs space-y-2 text-on-surface-variant">
+                            <li>🔴 <strong>Temperatura Reactor:</strong> Menor a 380°C o fallas térmicas</li>
+                            <li>🔴 <strong>Materia Prima:</strong> Polímeros contaminados con orgánicos/suciedad</li>
+                            <li>🔴 <strong>Z-Scores Tolerancia:</strong> Desviación crítica > &plusmn;2.0σ en la firma de gases.</li>
+                            <li>🔴 <strong>Características:</strong> Presencia de agua libre y monóxido por pirólisis incompleta.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="p-gutter bg-surface-container rounded-lg border border-outline-variant/30">
+                    <h4 class="font-bold text-primary text-sm mb-2">Topología del Algoritmo Neuronal GCN-LSTM</h4>
+                    <p class="text-xs text-on-surface-variant leading-relaxed mb-2">
+                        La clasificación se realiza a través de un modelo híbrido GCN-LSTM de aprendizaje profundo:
+                    </p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-on-surface-variant">
+                        <div class="p-3 bg-surface-container-low rounded border border-outline-variant/20">
+                            <strong>1. Red Convolucional de Grafos (GCN):</strong>
+                            <p class="mt-1">
+                                Los 6 sensores MQ se modelan como nodos en un grafo. La GCN procesa las conexiones espaciales y la covarianza de gases de forma matricial para contrarrestar la deriva de sensores cruzados.
+                            </p>
+                        </div>
+                        <div class="p-3 bg-surface-container-low rounded border border-outline-variant/20">
+                            <strong>2. Long Short-Term Memory (LSTM):</strong>
+                            <p class="mt-1">
+                                Las características espaciales extraídas se alimentan en una capa LSTM que captura las dinámicas transitorias temporales de gases durante una ventana deslizante de 30 lecturas secuenciales.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 5: ALERTS HISTORY LOG -->
+        <div id="view-alerts" class="hidden space-y-panel-gap pb-10">
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border">
+                <h3 class="font-headline-sm text-headline-sm text-primary mb-2 flex items-center gap-2">
+                    <span class="material-symbols-outlined">notifications_active</span>
+                    Registro Histórico de Alertas del Proceso
+                </h3>
+                <p class="text-body-md text-on-surface-variant mb-6">Registro secuencial de desviaciones críticas de gases y temperatura/humedad capturadas durante la sesión actual de monitoreo.</p>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-surface-container-low text-xs uppercase text-primary">
+                                <th class="p-4 border-b border-outline-variant/30">Timestamp</th>
+                                <th class="p-4 border-b border-outline-variant/30">Variable / Sensor</th>
+                                <th class="p-4 border-b border-outline-variant/30">Estado</th>
+                                <th class="p-4 border-b border-outline-variant/30">Z-Score / Valor</th>
+                                <th class="p-4 border-b border-outline-variant/30">Descripción Diagnóstico</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-history-table" class="text-xs leading-normal">
+                            <tr>
+                                <td colspan="5" class="p-8 text-center text-on-surface-variant">
+                                    No se han registrado alertas en esta sesión de monitoreo.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 6: SETTINGS (PROJECT METADATA) -->
+        <div id="view-settings" class="hidden space-y-panel-gap pb-10">
+            <div class="glass-panel rounded-xl p-container-padding active-sensor-border space-y-6">
+                <div>
+                    <h3 class="font-headline-sm text-headline-sm text-primary mb-2">Configuración y Metadatos del Sistema</h3>
+                    <p class="text-body-md text-on-surface-variant">Información técnica de integración de hardware, firmware y el modelo de Deep Learning.</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter text-xs text-on-surface-variant">
+                    <div class="space-y-4">
+                        <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/30">
+                            <h4 class="font-bold text-primary mb-2 text-sm">Nodo Central (Raspberry Pi)</h4>
+                            <div class="space-y-1 font-mono">
+                                <div>Hostname: <span class="font-bold text-primary">Pollito</span></div>
+                                <div>IP Host Local: <span class="font-bold text-primary">10.42.0.1</span></div>
+                                <div>Puerto Servidor: <span class="font-bold text-primary">8000</span></div>
+                                <div>Arquitectura: <span class="font-bold text-primary">aarch64 (Linux Debian)</span></div>
+                                <div>Intérprete Python: <span class="font-bold text-primary">Python 3.13</span></div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/30">
+                            <h4 class="font-bold text-primary mb-2 text-sm">Firmware del Sensor Array (ESP32)</h4>
+                            <div class="space-y-1 font-mono">
+                                <div>Protocolo: <span class="font-bold text-primary">HTTP / POST JSON</span></div>
+                                <div>Frecuencia de envío: <span class="font-bold text-primary">1.0s (1 Hz)</span></div>
+                                <div>Buffer de sensor: <span class="font-bold text-primary">Rolling buffer de 30s</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/30">
+                            <h4 class="font-bold text-primary mb-2 text-sm">Activos del Modelo GCN-LSTM</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center pb-1 border-b border-outline-variant/20">
+                                    <span>TFLite Binary:</span>
+                                    <span class="font-mono bg-surface-container-low px-1.5 py-0.5 rounded text-primary">enose_modelo.tflite</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-1 border-b border-outline-variant/20">
+                                    <span>Standard Scaler:</span>
+                                    <span class="font-mono bg-surface-container-low px-1.5 py-0.5 rounded text-primary">scaler.pkl</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-1 border-b border-outline-variant/20">
+                                    <span>Label Encoder:</span>
+                                    <span class="font-mono bg-surface-container-low px-1.5 py-0.5 rounded text-primary">label_encoder.pkl</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span>Patrón de Referencia:</span>
+                                    <span class="font-mono bg-surface-container-low px-1.5 py-0.5 rounded text-primary">perfil_referencia.pkl</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-surface-container rounded-lg border border-outline-variant/30">
+                            <h4 class="font-bold text-primary mb-2 text-sm">Información del Proyecto</h4>
+                            <p class="leading-relaxed">
+                                Proyecto de tesis para el control de calidad en tiempo real de gasolina obtenida por pirólisis de residuos plásticos. Desarrollado con arquitecturas de aprendizaje profundo y computación de borde (Edge Computing).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script>
+    // System Config
+    const sensorConfig = {
+        MQ2: { min: 5000, max: 40000, default: 23231.72, unit: 'ADC', label: 'MQ2 (GLP / Hidrógeno)', color: '#1B4079' },
+        MQ4: { min: 5000, max: 30000, default: 17268.26, unit: 'ADC', label: 'MQ4 (Metano - CH4)', color: '#4D7C8A' },
+        MQ135: { min: 5000, max: 60000, default: 12320.02, unit: 'ADC', label: 'MQ135 (VOCs / Amoniaco)', color: '#8FAD88' },
+        MQ3: { min: 2000, max: 25000, default: 8474.87, unit: 'ADC', label: 'MQ3 (Vapores de Alcohol)', color: '#8A70A4' },
+        MQ7: { min: 2000, max: 40000, default: 7553.57, unit: 'ADC', label: 'MQ7 (Monóxido de Carbono)', color: '#D9825F' },
+        MQ9: { min: 2000, max: 30000, default: 15570.25, unit: 'ADC', label: 'MQ9 (Hidrocarburos Medios)', color: '#C8A366' },
+        temp: { min: 15, max: 35, default: 22.51, unit: '°C', label: 'Temp. Cámara Gases' },
+        humedad: { min: 40, max: 80, default: 59.04, unit: '%', label: 'Hum. Cámara Gases' }
+    };
+
+    // Render Telemetry Progress Bars
+    const telemetryContainer = document.getElementById('telemetry-bars');
+    Object.keys(sensorConfig).forEach(key => {
+        if (key === 'temp' || key === 'humedad') return; // Gauges hold these
+        const config = sensorConfig[key];
+        const html = `
+            <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-on-surface-variant font-medium">${config.label}</span>
+                    <span class="font-mono font-bold text-primary" id="val-${key}">${config.default} ${config.unit}</span>
+                </div>
+                <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden border border-outline-variant/30">
+                    <div class="h-full rounded-full transition-all duration-500 ease-out" id="bar-${key}" style="background-color: ${config.color}; width: 0%"></div>
+                </div>
+            </div>
+        `;
+        telemetryContainer.insertAdjacentHTML('beforeend', html);
+    });
+
+    // Initialize Chart.js
+    const ctx = document.getElementById('spectroscopyChart').getContext('2d');
+    const chartLabels = Array.from({length: 30}, (_, i) => ""); // Empty placeholders
+    const datasets = Object.keys(sensorConfig)
+        .filter(key => key !== 'temp' && key !== 'humedad')
+        .map(key => ({
+            label: key,
+            data: Array(30).fill(null),
+            borderColor: sensorConfig[key].color,
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 3
+        }));
+
+    const spectroscopyChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(0, 0, 0, 0.03)', drawBorder: false },
+                    ticks: { color: '#747781', font: { family: 'Inter', size: 9 } }
+                },
+                y: {
+                    grid: { color: 'rgba(0, 0, 0, 0.03)', drawBorder: false },
+                    ticks: { color: '#747781', font: { family: 'Inter', size: 9 } }
+                }
+            }
+        }
+    });
+
+    // Update Progress Bar Fills
+    function updateVisualBar(key, val) {
+        const config = sensorConfig[key];
+        const percent = ((val - config.min) / (config.max - config.min)) * 100;
+        const boundedPercent = Math.min(100, Math.max(0, percent));
+        
+        if (key === 'temp' || key === 'humedad') {
+            // Circular progress meters
+            const circle = document.getElementById(`${key === 'temp' ? 'temp' : 'hum'}-gauge`);
+            const textVal = document.getElementById(`${key === 'temp' ? 'temp' : 'hum'}-value`);
+            if (circle && textVal) {
+                // Circumference = 264
+                const offset = 264 * (1 - (boundedPercent / 100));
+                circle.style.strokeDashoffset = offset;
+                textVal.innerHTML = `${val.toFixed(1)}<span class="text-2xl">${config.unit}</span>`;
+            }
+        } else {
+            // Linear progress bars
+            const bar = document.getElementById(`bar-${key}`);
+            const textVal = document.getElementById(`val-${key}`);
+            if (bar && textVal) {
+                bar.style.width = `${boundedPercent}%`;
+                textVal.innerText = `${val.toFixed(0)} ${config.unit}`;
+            }
+
+            // Update detailed diagnostics view cards if visible
+            const diagBar = document.getElementById(`diag-bar-${key}`);
+            const diagVal = document.getElementById(`diag-val-${key}`);
+            if (diagBar && diagVal) {
+                diagBar.style.width = `${boundedPercent}%`;
+                diagVal.innerText = `${val.toFixed(0)} ${config.unit}`;
+            }
+        }
+    }
+
+    // Set defaults initially
+    Object.keys(sensorConfig).forEach(key => updateVisualBar(key, sensorConfig[key].default));
+
+    // Polling Loop
+    setInterval(pollLatestResult, 1000);
+
+    // Active Alerts tracking
+    let alertsHistory = [];
+    let lastAlertTime = {};
+
+    function pollLatestResult() {
+        fetch('/latest_result')
+        .then(response => {
+            if (!response.ok) throw new Error("HTTP error: " + response.status);
+            return response.json();
+        })
+        .then(data => {
+            // 1. Update progress bars and circular gauges
+            if (data.latest_values) {
+                Object.keys(data.latest_values).forEach(key => {
+                    if (sensorConfig[key]) {
+                        updateVisualBar(key, data.latest_values[key]);
+                    }
+                });
+            }
+
+            // 2. Update Top Badge
+            const statusBadge = document.getElementById('status-badge');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            
+            if (data.latest_values === null || data.latest_values === undefined) {
+                statusBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2";
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                statusText.innerHTML = `A LA ESPERA DE INFORMACIÓN`;
+            } else if (data.buffer_size < 30) {
+                statusBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2";
+                statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+                statusText.innerHTML = `LLENANDO BÚFER: ${data.buffer_size}/30s`;
+            } else {
+                statusBadge.className = "px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full flex items-center gap-2";
+                statusDot.className = "w-2 h-2 rounded-full bg-secondary animate-pulse";
+                statusText.innerHTML = `MONITOREO ACTIVO`;
+            }
+
+            // 3. Update Environment Stability Description
+            const stabilityText = document.getElementById('stability-text');
+            const stabilityStatus = document.getElementById('stability-status');
+            const stabilityIcon = document.getElementById('stability-icon');
+            
+            if (data.latest_values && data.latest_values.temp !== undefined && data.latest_values.humedad !== undefined) {
+                const t = data.latest_values.temp;
+                const h = data.latest_values.humedad;
+                if (t >= 18 && t <= 26 && h >= 50 && h <= 70) {
+                    stabilityText.innerText = `Cámara estable. Condiciones ambientales óptimas para la espectroscopia del destilado.`;
+                    stabilityStatus.innerText = "ESTABLE - SIN DERIVAS";
+                    stabilityStatus.parentElement.className = "mt-4 flex items-center gap-2 text-secondary font-bold";
+                    stabilityIcon.innerText = "trending_up";
+                    stabilityIcon.className = "material-symbols-outlined";
+                } else {
+                    stabilityText.innerText = `Deriva ambiental detectada. Sensores ajustando compensación matemática (GCN).`;
+                    stabilityStatus.innerText = "DERIVA AMBIENTAL";
+                    stabilityStatus.parentElement.className = "mt-4 flex items-center gap-2 text-amber-600 font-bold";
+                    stabilityIcon.innerText = "warning";
+                    stabilityIcon.className = "material-symbols-outlined animate-pulse";
+                }
+            }
+
+            // 4. Update Quality Grade Card
+            const gradePanel = document.getElementById('grade-panel');
+            const gradeValue = document.getElementById('grade-value');
+            const gradeStatus = document.getElementById('grade-status');
+            const gradeIcon = document.getElementById('grade-icon');
+            const gradeGlow = document.getElementById('grade-glow');
+            const gradePanelBg = document.getElementById('grade-panel-bg');
+            const gradeCardLabel = document.getElementById('grade-card-label');
+
+            if (data.latest_values === null || data.latest_values === undefined) {
+                gradePanel.className = "flex-1 glass-panel rounded-xl p-container-padding flex flex-col items-center justify-center text-center overflow-hidden relative border-2 border-outline-variant";
+                gradePanelBg.className = "absolute inset-0 bg-outline/5";
+                gradeIcon.innerText = "sensors_off";
+                gradeIcon.className = "material-symbols-outlined text-outline text-5xl relative z-10";
+                gradeGlow.className = "absolute inset-0 bg-outline-variant/20 rounded-full pulse-glow";
+                gradeCardLabel.className = "font-label-sm text-label-sm text-outline font-bold tracking-[0.2em] mb-2";
+                gradeValue.innerText = "ESPERANDO";
+                gradeValue.className = "font-headline-lg text-headline-lg text-outline font-extrabold mb-1";
+                gradeStatus.className = "px-4 py-1 bg-outline text-white rounded-full font-bold text-label-sm shadow-lg";
+                gradeStatus.innerText = `A LA ESPERA DE DATOS`;
+            } else if (data.prediction === 'Esperando datos...') {
+                gradePanel.className = "flex-1 glass-panel rounded-xl p-container-padding flex flex-col items-center justify-center text-center overflow-hidden relative border-2 border-outline-variant";
+                gradePanelBg.className = "absolute inset-0 bg-outline/5";
+                gradeIcon.innerText = "hourglass_empty";
+                gradeIcon.className = "material-symbols-outlined text-outline text-5xl relative z-10";
+                gradeGlow.className = "absolute inset-0 bg-outline-variant/20 rounded-full pulse-glow";
+                gradeCardLabel.className = "font-label-sm text-label-sm text-outline font-bold tracking-[0.2em] mb-2";
+                gradeValue.innerText = "BÚFER";
+                gradeValue.className = "font-headline-lg text-headline-lg text-outline font-extrabold mb-1";
+                gradeStatus.className = "px-4 py-1 bg-outline text-white rounded-full font-bold text-label-sm shadow-lg";
+                gradeStatus.innerText = `LLENANDO ${data.buffer_size}/30s`;
+            } else {
+                let colorClass = '';
+                let bgClass = '';
+                let borderClass = '';
+                let iconName = '';
+                let statusLabel = '';
+                let gradeName = '';
+                
+                if (data.prediction === 'ALTA') {
+                    colorClass = 'text-secondary';
+                    bgClass = 'bg-secondary text-white';
+                    borderClass = 'border-secondary';
+                    iconName = 'verified';
+                    statusLabel = 'CONFORME (GRADO A)';
+                    gradeName = `GRADO A (${data.confidence}%)`;
+                } else if (data.prediction === 'MEDIA') {
+                    colorClass = 'text-amber-600';
+                    bgClass = 'bg-amber-500 text-white';
+                    borderClass = 'border-amber-500';
+                    iconName = 'warning';
+                    statusLabel = 'DESVIADO (GRADO B)';
+                    gradeName = `GRADO B (${data.confidence}%)`;
+                } else {
+                    colorClass = 'text-error';
+                    bgClass = 'bg-error text-white';
+                    borderClass = 'border-error';
+                    iconName = 'report_problem';
+                    statusLabel = 'NO CONFORME (GRADO C)';
+                    gradeName = `GRADO C (${data.confidence}%)`;
+                }
+
+                gradePanel.className = `flex-1 glass-panel rounded-xl p-container-padding flex flex-col items-center justify-center text-center overflow-hidden relative border-2 ${borderClass}`;
+                gradePanelBg.className = `absolute inset-0 ${colorClass}/5`;
+                gradeIcon.innerText = iconName;
+                gradeIcon.className = `material-symbols-outlined ${colorClass} text-5xl relative z-10`;
+                gradeGlow.className = `absolute inset-0 ${colorClass}/20 rounded-full pulse-glow`;
+                gradeCardLabel.className = `font-label-sm text-label-sm ${colorClass} font-bold tracking-[0.2em] mb-2`;
+                gradeValue.innerText = gradeName;
+                gradeValue.className = `font-headline-lg text-headline-lg ${colorClass} font-extrabold mb-1`;
+                gradeStatus.className = `px-4 py-1 ${bgClass} rounded-full font-bold text-label-sm shadow-lg`;
+                gradeStatus.innerText = statusLabel;
+            }
+
+            // 5. Update spectroscopy chart
+            if (data.latest_values) {
+                const now = new Date();
+                const timeString = now.toTimeString().split(' ')[0]; // HH:MM:SS
+                
+                // Add timestamp to labels
+                spectroscopyChart.data.labels.push(timeString);
+                if (spectroscopyChart.data.labels.length > 30) {
+                    spectroscopyChart.data.labels.shift();
+                }
+
+                // Add values to datasets
+                spectroscopyChart.data.datasets.forEach(ds => {
+                    const sensorKey = ds.label;
+                    const val = data.latest_values[sensorKey];
+                    ds.data.push(val !== undefined ? val : null);
+                    if (ds.data.length > 30) {
+                        ds.data.shift();
+                    }
+                });
+                
+                spectroscopyChart.update('none');
+            }
+
+            // 6. Update Diagnostics Table & Log Alerts
+            const tableBody = document.getElementById('analysis-table-body');
+            const nowTime = new Date().toLocaleTimeString();
+
+            if (data.prediction === 'Esperando datos...') {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-8 text-center text-on-surface-variant">
+                            <div class="loading-spinner mx-auto mb-4"></div>
+                            Adquiriendo datos analíticos secuenciales del reactor...
+                        </td>
+                    </tr>
+                `;
+            } else {
+                let tableHtml = '';
+                if (data.diagnostics && data.diagnostics.length > 0) {
+                    data.diagnostics.forEach(diag => {
+                        let badgeClass = '';
+                        let severity = 'Info';
+                        
+                        if (diag.status === 'ALTO') {
+                            badgeClass = 'bg-red-100 text-red-800 border border-red-200';
+                            severity = 'Anomalía';
+                        } else if (diag.status === 'BAJO') {
+                            badgeClass = 'bg-blue-100 text-blue-800 border border-blue-200';
+                            severity = 'Advertencia';
+                        } else {
+                            badgeClass = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                        }
+                        
+                        const sensorKey = diag.sensor;
+                        const config = sensorConfig[sensorKey] || { unit: '' };
+                        const valText = data.latest_values && data.latest_values[sensorKey] !== undefined 
+                            ? `${data.latest_values[sensorKey].toFixed(0)} ${config.unit}` 
+                            : '-';
+                        
+                        tableHtml += `
+                            <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20 transition-colors">
+                                <td class="p-4 font-bold text-primary">${diag.sensor}</td>
+                                <td class="p-4 font-mono text-sm">${valText}</td>
+                                <td class="p-4">
+                                    <span class="px-2.5 py-1 rounded text-xs font-bold ${badgeClass}">
+                                        ${diag.status} (${diag.deviation > 0 ? '+' : ''}${diag.deviation.toFixed(2)} σ)
+                                    </span>
+                                </td>
+                                <td class="p-4 text-xs leading-normal">
+                                    <strong class="text-primary">${diag.alert}</strong><br>
+                                    <span class="text-on-surface-variant">${diag.recommendation}</span>
+                                </td>
+                            </tr>
+                        `;
+
+                        // Add to persistent Alerts view log if severity is Alert/Warning and hasn't been logged in last 8s
+                        if (severity !== 'Info') {
+                            const nowMs = Date.now();
+                            const lastLogged = lastAlertTime[sensorKey] || 0;
+                            if (nowMs - lastLogged > 8000) { // 8 seconds cooldown
+                                lastAlertTime[sensorKey] = nowMs;
+                                alertsHistory.unshift({
+                                    time: nowTime,
+                                    sensor: sensorKey,
+                                    status: diag.status,
+                                    severity: severity,
+                                    val: valText,
+                                    desc: diag.alert
+                                });
+                                // Cap history at 50 alerts
+                                if (alertsHistory.length > 50) alertsHistory.pop();
+                                updateAlertsTable();
+                            }
+                        }
+                    });
+                } else {
+                    tableHtml = `
+                        <tr>
+                            <td colspan="4" class="p-6 text-center text-secondary font-medium bg-secondary/5">
+                                ✅ Parámetros dentro del margen de tolerancia. Gasolina Grado A estable en el reactor.
+                            </td>
+                        </tr>
+                    `;
+                }
+                tableBody.innerHTML = tableHtml;
+            }
+
+            // Update individual status cards in Sensors View
+            if (data.latest_values) {
+                Object.keys(sensorConfig).forEach(key => {
+                    if (key === 'temp' || key === 'humedad') return;
+                    const statusEl = document.getElementById(`diag-status-${key}`);
+                    if (statusEl) {
+                        const isDiagAlert = data.diagnostics && data.diagnostics.find(d => d.sensor === key);
+                        if (isDiagAlert) {
+                            if (isDiagAlert.status === 'ALTO') {
+                                statusEl.className = "px-2 py-0.5 bg-red-100 text-red-800 text-xs font-bold rounded";
+                                statusEl.innerText = "ALTO";
+                            } else {
+                                statusEl.className = "px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-bold rounded";
+                                statusEl.innerText = "BAJO";
+                            }
+                        } else {
+                            statusEl.className = "px-2 py-0.5 bg-emerald-100 text-emerald-800 text-xs font-bold rounded";
+                            statusEl.innerText = "NORMAL";
+                        }
+                    }
+                });
+            }
+
+            // 7. Update JSON Box
+            document.getElementById('json-box').innerText = JSON.stringify(data, null, 2);
+        })
+        .catch(error => {
+            console.error("Polling error:", error);
+            const statusBadge = document.getElementById('status-badge');
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (statusBadge) {
+                statusBadge.className = "px-3 py-1 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center gap-2";
+                statusDot.className = "w-2 h-2 rounded-full bg-red-500 animate-pulse";
+                statusText.innerHTML = `ERROR DE ENLACE API`;
+            }
+        });
+    }
+
+    // Toggle JSON Viewer
+    let jsonVisible = false;
+    function toggleJson() {
+        const box = document.getElementById('json-box');
+        jsonVisible = !jsonVisible;
+        if (jsonVisible) {
+            box.classList.remove('hidden');
+        } else {
+            box.classList.add('hidden');
+        }
+    }
+
+    // Sidebar Toggle for Mobile Devices
+    let sidebarOpen = false;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebarOpen = !sidebarOpen;
+        if (sidebarOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+    }
+
+    // SPA Single Page Application tab navigation
+    function switchView(viewName) {
+        const views = ['dashboard', 'sensors', 'analytics', 'quality', 'alerts', 'settings'];
+        
+        views.forEach(v => {
+            const el = document.getElementById(`view-${v}`);
+            const btn = document.getElementById(`nav-${v}`);
+            if (el) {
+                if (v === viewName) {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            }
+            if (btn) {
+                if (v === viewName) {
+                    btn.className = "w-full flex items-center gap-unit bg-secondary-container text-on-secondary-container rounded-lg px-4 py-3 font-bold transition-all duration-200 active:scale-95";
+                } else {
+                    btn.className = "w-full flex items-center gap-unit text-on-primary/70 hover:text-on-primary px-4 py-3 transition-colors hover:bg-primary-container/50 rounded-lg";
+                }
+            }
+        });
+
+        // Auto-close sidebar on mobile after clicking
+        if (window.innerWidth < 1024 && sidebarOpen) {
+            toggleSidebar();
+        }
+    }
+
+    // Update persistent alerts view table markup
+    function updateAlertsTable() {
+        const tableBody = document.getElementById('alerts-history-table');
+        const badge = document.getElementById('alerts-badge');
+        const dot = document.getElementById('header-alerts-dot');
+        
+        if (alertsHistory.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-on-surface-variant">
+                        No se han registrado alertas en esta sesión de monitoreo.
+                    </td>
+                </tr>
+            `;
+            badge.classList.add('hidden');
+            dot.classList.add('hidden');
+        } else {
+            let html = '';
+            alertsHistory.forEach(a => {
+                const badgeColor = a.severity === 'Anomalía' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800';
+                html += `
+                    <tr class="border-b border-surface-variant/20 hover:bg-surface-container-low/20 transition-colors">
+                        <td class="p-4 font-mono">${a.time}</td>
+                        <td class="p-4 font-bold text-primary">${a.sensor}</td>
+                        <td class="p-4">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeColor}">
+                                ${a.severity} (${a.status})
+                            </span>
+                        </td>
+                        <td class="p-4 font-mono">${a.val}</td>
+                        <td class="p-4 text-xs text-on-surface-variant">${a.desc}</td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+            
+            // Show badge counts
+            badge.classList.remove('hidden');
+            badge.innerText = alertsHistory.length;
+            dot.classList.remove('hidden');
+        }
+    }
+
+    // Custom Toast Notifications
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `fixed bottom-5 right-5 px-4 py-3 rounded-lg text-white font-bold shadow-lg transition-all duration-300 transform translate-y-10 opacity-0 z-50 flex items-center gap-2`;
+        
+        if (type === 'success') {
+            toast.style.backgroundColor = '#546524'; // secondary green
+        } else if (type === 'error') {
+            toast.style.backgroundColor = '#ba1a1a'; // error red
+        } else {
+            toast.style.backgroundColor = '#00295d'; // primary blue
+        }
+        
+        toast.innerHTML = `
+            <span class="material-symbols-outlined">${type === 'success' ? 'check_circle' : 'error'}</span>
+            <span class="text-sm font-sans">${message}</span>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    // API Purge Buffer endpoint caller
+    function triggerPurge() {
+        if (confirm("¿Está seguro de que desea purgar el reactor y reiniciar el búfer de gases?")) {
+            fetch('/clear_buffer', { method: 'POST' })
+            .then(response => {
+                if (response.ok) {
+                    showToast("Reactor purgado. Búfer e historial gráfico de gases reiniciados.", "success");
+                    // Reset chart datasets
+                    spectroscopyChart.data.labels = Array.from({length: 30}, (_, i) => "");
+                    spectroscopyChart.data.datasets.forEach(ds => {
+                        ds.data = Array(30).fill(null);
+                    });
+                    spectroscopyChart.update('none');
+                    // Wipe history logs
+                    alertsHistory = [];
+                    updateAlertsTable();
+                } else {
+                    showToast("Error al purgar el reactor de gases.", "error");
+                }
+            })
+            .catch(err => {
+                console.error("Purge connection error:", err);
+                showToast("Fallo de red al purgar el reactor.", "error");
+            });
+        }
+    }
+</script>
+</body>
+</html>
