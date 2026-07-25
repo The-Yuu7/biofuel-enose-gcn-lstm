@@ -508,6 +508,37 @@ def get_latest_result() -> Dict[str, Any]:
     return app.state.latest_result
 
 
+@app.get("/reference_profile", status_code=status.HTTP_200_OK)
+def get_reference_profile() -> Dict[str, Any]:
+    """Returns the exact pattern baseline (means, std devs and physical voltages) of the real commercial gasoline calibration dataset."""
+    if not assets.scaler:
+        return {"status": "error", "message": "Scaler not loaded"}
+    
+    means = assets.scaler.mean_
+    stds = assets.scaler.scale_
+    
+    pattern = {}
+    for i, s in enumerate(SENSORES):
+        pattern[s] = {
+            "mean_adc": round(float(means[i]), 2),
+            "std_adc": round(float(stds[i]), 2),
+            "voltage": round(float(means[i] * (4.096 / 32768.0)), 3) if i < 6 else round(float(means[i]), 1),
+            "unit": "ADC" if i < 6 else ("°C" if s == "temp" else "%")
+        }
+        
+    return {
+        "status": "success",
+        "calibration_samples": 50,
+        "grifos_count": {"Grifo_1": 17, "Grifo_2": 17, "Grifo_3": 16},
+        "quality_thresholds": {
+            "ALTA": {"min_confidence": 90.0, "max_zscore": 1.5, "badge": "Clase A - Dentro de Norma ASTM D4814"},
+            "MEDIA": {"min_confidence": 70.0, "max_zscore": 3.0, "badge": "Clase B - Desviación Tolerable / Advertencia"},
+            "BAJA": {"min_confidence": 0.0, "max_zscore": 99.0, "badge": "Clase C - Fuera de Especificación / Adulterada"}
+        },
+        "pattern": pattern
+    }
+
+
 @app.post("/clear_buffer", status_code=status.HTTP_200_OK)
 def clear_buffer() -> Dict[str, Any]:
     """Clears the sensor buffer and resets the latest result prediction status."""
