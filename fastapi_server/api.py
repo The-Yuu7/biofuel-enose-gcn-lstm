@@ -304,7 +304,8 @@ def run_diagnostic(ventana_normalizada: np.ndarray) -> List[Dict[str, Any]]:
         return diagnostics
         
     perfil_actual = np.mean(ventana_normalizada, axis=0)
-    diferencias = perfil_actual - assets.perfil_referencia
+    ref_vec = np.mean(assets.perfil_referencia, axis=0) if assets.perfil_referencia.ndim == 2 else assets.perfil_referencia
+    diferencias = perfil_actual - ref_vec
     
     for i, sensor in enumerate(SENSORES):
         diff = diferencias[i]
@@ -355,7 +356,8 @@ def process_prediction(raw_window: np.ndarray) -> Dict[str, Any]:
         import warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", category=UserWarning)
-            ventana_normalizada = assets.scaler.transform(raw_window)
+            raw_window_2d = raw_window.reshape(-1, len(SENSORES))
+            ventana_normalizada = assets.scaler.transform(raw_window_2d).reshape(TIMESTEPS, len(SENSORES))
     except Exception as err:
         logger.error("Data scaling failed: %s", err)
         raise HTTPException(
