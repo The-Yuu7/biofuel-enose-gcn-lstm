@@ -1020,14 +1020,18 @@
                 statusBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2";
                 statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
                 statusText.innerHTML = `A LA ESPERA DE INFORMACIÓN`;
+            } else if (data.is_ambient) {
+                statusBadge.className = "px-3 py-1 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full flex items-center gap-2";
+                statusDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                statusText.innerHTML = `🟢 AIRE AMBIENTE (SENSORES LIMPIOS)`;
             } else if (data.buffer_size < 30) {
                 statusBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2";
                 statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-                statusText.innerHTML = `LLENANDO BÚFER: ${data.buffer_size}/30s`;
+                statusText.innerHTML = `🔥 BÚFER REACCIÓN: ${data.buffer_size}/30s (CSV: ${data.recorded_samples || 0}/50)`;
             } else {
                 statusBadge.className = "px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full flex items-center gap-2";
                 statusDot.className = "w-2 h-2 rounded-full bg-secondary animate-pulse";
-                statusText.innerHTML = `MONITOREO ACTIVO`;
+                statusText.innerHTML = `🔥 MONITORIZANDO VAPORES (CSV: ${data.recorded_samples || 0}/50 MUESTRAS)`;
             }
 
             // 3. Update Environment Stability Description

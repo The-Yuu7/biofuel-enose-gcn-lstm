@@ -139,18 +139,27 @@ async def lifespan(app: FastAPI):
     """Handles the startup and shutdown lifecycles of FastAPI assets."""
     logger.info("Initializing application startup sequence.")
     
-    # Initialize state variables for rolling window live monitoring
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Initialize state variables for rolling window live monitoring and pyrolysis dataset logging
     app.state.sensor_buffer = []
+    app.state.recorded_samples_count = 0
+    app.state.target_samples = 50
+    app.state.auto_record_optimal = True
+    app.state.csv_path = os.path.join(base_dir, "data_capturada_pirolisis.csv")
     app.state.latest_result = {
         "prediction": "Esperando datos...",
         "confidence": 0.0,
         "probabilities": {},
         "diagnostics": [],
         "buffer_size": 0,
+        "ambient_status": "AIRE AMBIENTE (SENSORES LIMPIOS)",
+        "is_ambient": True,
+        "recorded_samples": 0,
+        "target_samples": 50,
         "latest_values": {k: 0.0 for k in SENSORES}
     }
     
-    base_dir = os.path.dirname(os.path.abspath(__file__))
     model_path = os.path.join(base_dir, "model", "enose_modelo.tflite")
     scaler_path = os.path.join(base_dir, "model", "scaler.pkl")
     encoder_path = os.path.join(base_dir, "model", "label_encoder.pkl")
@@ -473,12 +482,17 @@ def predict_quality_raw(request: RawPredictionRequest) -> Dict[str, Any]:
 def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
     """Receives a single timestep of sensor readings and appends it to the rolling buffer.
     Runs prediction and diagnostics automatically once the buffer is full (30 timesteps).
+    Auto-saves optimal samples to CSV up to the 50-sample research target.
     """
     buffer = app.state.sensor_buffer
     buffer.append(request)
     
     if len(buffer) > TIMESTEPS:
         buffer.pop(0)
+        
+    # Detect ambient air baseline level (if main hydrocarbon sensors are < 10000 ADC)
+    is_ambient = (request.MQ2 < 10000 and request.MQ4 < 10000 and request.MQ135 < 10000)
+    ambient_status = "AIRE AMBIENTE (SENSORES LIMPIOS)" if is_ambient else "REACCIÓN ACTIVA / MONITORIZANDO VAPORES"
         
     if len(buffer) == TIMESTEPS:
         try:
@@ -488,32 +502,82 @@ def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
             ])
             prediction_res = process_prediction(raw_window)
             
+            # Auto-record optimal samples to research dataset CSV
+            if prediction_res["prediction"] == "ALTA" and app.state.auto_record_optimal and app.state.recorded_samples_count < app.state.target_samples:
+                try:
+                    import csv
+                    file_exists = os.path.exists(app.state.csv_path)
+                    with open(app.state.csv_path, 'a', newline='') as f:
+                        writer = csv.writer(f)
+                        if not file_exists:
+                            writer.writerow(SENSORES)
+                        for row in raw_window:
+                            writer.writerow(row)
+                    app.state.recorded_samples_count += 1
+                    logger.info("¡Muestra Óptima N° %d/50 registrada automáticamente en CSV!", app.state.recorded_samples_count)
+                except Exception as csv_err:
+                    logger.error("Error guardando muestra en CSV: %s", csv_err)
+            
             app.state.latest_result = {
                 "prediction": prediction_res["prediction"],
                 "confidence": prediction_res["confidence"],
                 "probabilities": prediction_res["probabilities"],
                 "diagnostics": prediction_res["diagnostics"],
                 "buffer_size": len(buffer),
+                "ambient_status": ambient_status,
+                "is_ambient": is_ambient,
+                "recorded_samples": app.state.recorded_samples_count,
+                "target_samples": app.state.target_samples,
                 "latest_values": request.model_dump()
             }
-            logger.info("Auto-analysis complete. Quality: %s", prediction_res["prediction"])
+            logger.info("Auto-analysis complete. Quality: %s | Ambient: %s | CSV Progress: %d/50", 
+                        prediction_res["prediction"], ambient_status, app.state.recorded_samples_count)
         except Exception as err:
             logger.error("Error during auto-analysis: %s", err)
     else:
         # Just update latest values for visualization
         app.state.latest_result["buffer_size"] = len(buffer)
+        app.state.latest_result["ambient_status"] = ambient_status
+        app.state.latest_result["is_ambient"] = is_ambient
+        app.state.latest_result["recorded_samples"] = app.state.recorded_samples_count
+        app.state.latest_result["target_samples"] = app.state.target_samples
         app.state.latest_result["latest_values"] = request.model_dump()
         
     return {
         "status": "success",
-        "buffer_size": len(buffer)
+        "buffer_size": len(buffer),
+        "ambient_status": ambient_status,
+        "recorded_samples": app.state.recorded_samples_count
     }
 
 
 @app.get("/latest_result", status_code=status.HTTP_200_OK)
 def get_latest_result() -> Dict[str, Any]:
-    """Returns the latest prediction result and current sensor values."""
+    """Returns the latest prediction result, current sensor values, ambient status, and CSV recording progress."""
     return app.state.latest_result
+
+
+@app.get("/recording_status", status_code=status.HTTP_200_OK)
+def get_recording_status() -> Dict[str, Any]:
+    """Returns current CSV recording progress and research dataset statistics."""
+    return {
+        "recorded_samples": app.state.recorded_samples_count,
+        "target_samples": app.state.target_samples,
+        "auto_record_optimal": app.state.auto_record_optimal,
+        "csv_path": app.state.csv_path,
+        "percentage": round((app.state.recorded_samples_count / app.state.target_samples) * 100, 1)
+    }
+
+
+@app.post("/toggle_auto_record", status_code=status.HTTP_200_OK)
+def toggle_auto_record() -> Dict[str, Any]:
+    """Toggles automatic CSV recording of optimal pyrolysis samples on/off."""
+    app.state.auto_record_optimal = not app.state.auto_record_optimal
+    logger.info("Auto-record mode changed to: %s", app.state.auto_record_optimal)
+    return {
+        "status": "success",
+        "auto_record_optimal": app.state.auto_record_optimal
+    }
 
 
 @app.get("/reference_profile", status_code=status.HTTP_200_OK)
