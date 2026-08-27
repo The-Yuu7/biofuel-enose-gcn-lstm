@@ -1,6 +1,6 @@
 #!/bin/bash
 # Directorio raíz del proyecto en la Raspberry Pi
-DIR="/home/pollito/Deep-Learning-for-Biofuel-Quality-Control"
+DIR="$HOME/Deep-Learning-for-Biofuel-Quality-Control"
 
 echo "=== INICIANDO SERVIDORES E-NOSE ==="
 cd $DIR/fastapi_server
