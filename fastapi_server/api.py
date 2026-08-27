@@ -275,11 +275,15 @@ def read_root() -> HTMLResponse:
     index_path = os.path.join(base_dir, "index.html")
     if os.path.exists(index_path):
         with open(index_path, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read(), status_code=status.HTTP_200_OK)
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Frontend index.html file not found."
-    )
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>E-Nose Control Center API is running.</h1>")
+
+
+@app.get("/favicon.ico")
+def get_favicon():
+    """Silences browser favicon 404 requests."""
+    from fastapi.responses import Response
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @app.get("/health", status_code=status.HTTP_200_OK)

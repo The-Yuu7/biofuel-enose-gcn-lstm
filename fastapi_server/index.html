@@ -1054,7 +1054,7 @@
                 statusText.innerHTML = `🔥 MONITORIZANDO VAPORES (CSV: ${data.recorded_samples || 0}/50 MUESTRAS)`;
             }
 
-            // 3. Update Environment Stability Description
+            // 3. Update Environment Stability Description (if elements exist)
             const stabilityText = document.getElementById('stability-text');
             const stabilityStatus = document.getElementById('stability-status');
             const stabilityIcon = document.getElementById('stability-icon');
@@ -1062,18 +1062,15 @@
             if (data.latest_values && data.latest_values.temp !== undefined && data.latest_values.humedad !== undefined) {
                 const t = data.latest_values.temp;
                 const h = data.latest_values.humedad;
-                if (t >= 18 && t <= 26 && h >= 50 && h <= 70) {
-                    stabilityText.innerText = `Cámara estable. Condiciones ambientales óptimas para la espectroscopia del destilado.`;
-                    stabilityStatus.innerText = "ESTABLE - SIN DERIVAS";
-                    stabilityStatus.parentElement.className = "mt-4 flex items-center gap-2 text-secondary font-bold";
-                    stabilityIcon.innerText = "trending_up";
-                    stabilityIcon.className = "material-symbols-outlined";
-                } else {
-                    stabilityText.innerText = `Deriva ambiental detectada. Sensores ajustando compensación matemática (GCN).`;
-                    stabilityStatus.innerText = "DERIVA AMBIENTAL";
-                    stabilityStatus.parentElement.className = "mt-4 flex items-center gap-2 text-amber-600 font-bold";
-                    stabilityIcon.innerText = "warning";
-                    stabilityIcon.className = "material-symbols-outlined animate-pulse";
+                if (stabilityText) {
+                    if (t >= 18 && t <= 26 && h >= 50 && h <= 70) {
+                        stabilityText.innerText = `Cámara estable. Condiciones ambientales óptimas para la espectroscopia del destilado.`;
+                    } else {
+                        stabilityText.innerText = `Deriva ambiental detectada. Sensores ajustando compensación matemática (GCN).`;
+                    }
+                }
+                if (stabilityStatus) {
+                    stabilityStatus.innerText = (t >= 18 && t <= 26 && h >= 50 && h <= 70) ? "ESTABLE - SIN DERIVAS" : "DERIVA AMBIENTAL";
                 }
             }
 
