@@ -268,38 +268,46 @@
             <!-- BENTO ROW 1: Hero Stats & Grade -->
             <div class="grid grid-cols-12 gap-panel-gap">
                 <!-- HERO GAUGES -->
-                <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl p-container-padding active-sensor-border flex flex-col md:flex-row items-center justify-around gap-8">
-                    <div class="text-center space-y-4">
-                        <div class="relative w-40 h-40 flex items-center justify-center">
+                <div class="col-span-12 lg:col-span-8 glass-panel rounded-xl p-container-padding active-sensor-border flex flex-col md:flex-row items-center justify-around gap-6">
+                    <!-- Gauge 1: Ambient Temp -->
+                    <div class="text-center space-y-2">
+                        <div class="relative w-32 h-32 flex items-center justify-center">
                             <svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
                                 <circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
                                 <circle id="temp-gauge" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke-width="8" style="stroke: #4D7C8A; transition: stroke-dashoffset 0.5s ease;"></circle>
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span id="temp-value" class="font-display-lg text-display-lg text-primary">--<span class="text-2xl">°C</span></span>
-                                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Temperatura</span>
+                                <span id="temp-value" class="font-display-lg text-2xl text-primary font-bold">--<span class="text-sm">°C</span></span>
+                                <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Cámara</span>
                             </div>
                         </div>
                     </div>
-                    <div class="w-px h-24 bg-outline-variant hidden md:block"></div>
-                    <div class="text-center space-y-4">
-                        <div class="relative w-40 h-40 flex items-center justify-center">
+
+                    <!-- Gauge 2: Ambient Humidity -->
+                    <div class="text-center space-y-2">
+                        <div class="relative w-32 h-32 flex items-center justify-center">
                             <svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
                                 <circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
                                 <circle id="hum-gauge" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="264" stroke-linecap="round" stroke-width="8" style="stroke: #546524; transition: stroke-dashoffset 0.5s ease;"></circle>
                             </svg>
                             <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span id="hum-value" class="font-display-lg text-display-lg text-primary">--<span class="text-2xl">%</span></span>
-                                <span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Humedad</span>
+                                <span id="hum-value" class="font-display-lg text-2xl text-primary font-bold">--<span class="text-sm">%</span></span>
+                                <span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-widest">Humedad</span>
                             </div>
                         </div>
                     </div>
-                    <div class="flex-1 text-right md:text-left">
-                        <h3 class="font-headline-sm text-headline-sm text-primary mb-2">Estabilidad de la Cámara</h3>
-                        <p id="stability-text" class="text-body-md text-on-surface-variant max-w-xs">Inicializando lecturas ambientales del reactor de pirólisis...</p>
-                        <div class="mt-4 flex items-center gap-2 text-secondary font-bold" id="stability-indicator">
-                            <span class="material-symbols-outlined animate-spin" id="stability-icon">sync</span>
-                            <span class="text-label-lg" id="stability-status">CALIBRANDO</span>
+
+                    <!-- Gauge 3: Reactor Thermocouple Temp (MAX6675) -->
+                    <div class="text-center space-y-2">
+                        <div class="relative w-32 h-32 flex items-center justify-center">
+                            <svg class="w-full h-full circular-progress" viewbox="0 0 100 100">
+                                <circle class="text-surface-variant/40" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-width="8"></circle>
+                                <circle id="reactor-temp-gauge" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" stroke-dasharray="264" stroke-dashoffset="100" stroke-linecap="round" stroke-width="8" style="stroke: #d97706; transition: stroke-dashoffset 0.5s ease;"></circle>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="reactor-temp-value" class="font-display-lg text-2xl text-amber-600 font-bold">--<span class="text-sm">°C</span></span>
+                                <span class="font-label-sm text-[10px] text-amber-700 font-bold uppercase tracking-widest">🔥 REACTOR</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1009,6 +1017,18 @@
                         updateVisualBar(key, data.latest_values[key]);
                     }
                 });
+                
+                // Update Reactor Internal Thermocouple Gauge (MAX6675)
+                if (data.latest_values.temp_reactor !== undefined) {
+                    const tr = data.latest_values.temp_reactor;
+                    const rVal = document.getElementById('reactor-temp-value');
+                    const rGauge = document.getElementById('reactor-temp-gauge');
+                    if (rVal && rGauge) {
+                        rVal.innerHTML = `${tr.toFixed(1)}<span class="text-sm">°C</span>`;
+                        const offset = 264 - (Math.min(Math.max(tr, 0), 600) / 600) * 264;
+                        rGauge.style.strokeDashoffset = offset;
+                    }
+                }
             }
 
             // 2. Update Top Badge

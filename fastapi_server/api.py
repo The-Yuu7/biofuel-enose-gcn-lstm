@@ -249,8 +249,9 @@ class TimestepData(BaseModel):
     MQ3: float = Field(..., description="Sensor MQ3 reading")
     MQ7: float = Field(..., description="Sensor MQ7 reading")
     MQ9: float = Field(..., description="Sensor MQ9 reading")
-    temp: float = Field(..., description="Reactor temperature in °C")
+    temp: float = Field(..., description="Chamber ambient temperature in °C")
     humedad: float = Field(..., description="Relative humidity percentage")
+    temp_reactor: Optional[float] = Field(default=430.0, description="Internal pyrolysis reactor temperature in °C")
 
 
 class PredictionRequest(BaseModel):

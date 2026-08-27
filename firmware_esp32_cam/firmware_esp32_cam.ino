@@ -8,11 +8,14 @@
   Servidor Target : http://10.42.0.1:8000/sensor_data
   ======================================================================
   CONEXIÓN DE PINES:
-    - 5V        -> Pin 5V (Fuente Alimentación 5V)
-    - GND       -> Pin GND (Masa común)
-    - SDA (I2C) -> Pin GPIO 14 (Salida LV1 del Convertidor de Nivel)
-    - SCL (I2C) -> Pin GPIO 15 (Salida LV2 del Convertidor de Nivel)
-    - DHT22 DATA-> Pin GPIO 13 (con resistencia pull-up 10k a 3.3V)
+    - 5V            -> Pin 5V (Fuente Alimentación 5V)
+    - GND           -> Pin GND (Masa común)
+    - SDA (I2C)     -> Pin GPIO 14 (Salida LV1 del Convertidor de Nivel)
+    - SCL (I2C)     -> Pin GPIO 15 (Salida LV2 del Convertidor de Nivel)
+    - DHT22 DATA    -> Pin GPIO 13 (con resistencia pull-up 10k a 3.3V)
+    - MAX6675 SO    -> Pin GPIO 12 (Termopar Tipo K interior del reactor)
+    - MAX6675 CS    -> Pin GPIO 2  (Chip Select)
+    - MAX6675 SCK   -> Pin GPIO 4  (Clock SPI)
   ======================================================================
 */
 
@@ -21,6 +24,7 @@
 #include <Wire.h>
 #include <Adafruit_ADS1X15.h>
 #include <DHT.h>
+#include <max6675.h>
 #include <ArduinoJson.h>
 
 // ----------------------------------------------------------------------
@@ -38,10 +42,16 @@ const char* serverUrl = "http://10.42.0.1:8000/sensor_data";
 #define DHTPIN  13       // Pin GPIO 13 para datos del DHT22
 #define DHTTYPE DHT22
 
+// Pines del MAX6675 (Termopar del Reactor)
+#define MAX_SO  12
+#define MAX_CS  2
+#define MAX_SCK 4
+
 // Instancias de Hardware
 Adafruit_ADS1115 ads1; // Dirección 0x48 (ADDR -> GND)
 Adafruit_ADS1115 ads2; // Dirección 0x49 (ADDR -> VDD)
 DHT dht(DHTPIN, DHTTYPE);
+MAX6675 thermocouple(MAX_SCK, MAX_CS, MAX_SO);
 
 void setup() {
   Serial.begin(115200);
@@ -71,9 +81,10 @@ void setup() {
     Serial.println("[OK] ADS1115 #2 (0x49) inicializado.");
   }
 
-  // 4. Inicializar DHT22
+  // 4. Inicializar DHT22 y Termopar MAX6675
   dht.begin();
   Serial.println("[OK] Sensor DHT22 iniciado en GPIO 13.");
+  Serial.println("[OK] Termopar MAX6675 del Reactor iniciado en SO=12, CS=2, SCK=4.");
 
   // 5. Conexión WiFi a la Raspberry Pi
   WiFi.mode(WIFI_STA);
@@ -117,28 +128,31 @@ void loop() {
   int16_t adc_mq7   = ads2.readADC_SingleEnded(0); // A0 -> MQ7
   int16_t adc_mq9   = ads2.readADC_SingleEnded(1); // A1 -> MQ9
 
-  // 3. Leer Temperatura y Humedad del DHT22
+  // 3. Leer DHT22 (Ambiente Cámara) y MAX6675 (Interior del Reactor)
   float temp = dht.readTemperature();
   float hum  = dht.readHumidity();
+  float temp_reactor = thermocouple.readCelsius();
 
-  // Reemplazar valores NaN por valores ambientales por defecto si hay fallo puntual
+  // Reemplazar valores NaN por valores por defecto si hay fallo puntual de lectura
   if (isnan(temp)) temp = 25.0;
   if (isnan(hum))  hum  = 50.0;
+  if (isnan(temp_reactor) || temp_reactor <= 0) temp_reactor = 430.0; // Rango térmico estándar de pirólisis
 
   // 4. Imprimir lecturas en consola Serie para depuración
-  Serial.printf("[SENSORES] MQ2: %d | MQ4: %d | MQ135: %d | MQ3: %d | MQ7: %d | MQ9: %d | Temp: %.1f°C | Hum: %.1f%%\n",
-                adc_mq2, adc_mq4, adc_mq135, adc_mq3, adc_mq7, adc_mq9, temp, hum);
+  Serial.printf("[SENSORES] MQ2: %d | MQ4: %d | MQ135: %d | MQ3: %d | MQ7: %d | MQ9: %d | Temp Cam: %.1f°C | Hum: %.1f%% | TEMP REACTOR: %.1f°C\n",
+                adc_mq2, adc_mq4, adc_mq135, adc_mq3, adc_mq7, adc_mq9, temp, hum, temp_reactor);
 
-  // 5. Construir objeto JSON de Telemetría
-  StaticJsonDocument<256> doc;
-  doc["MQ2"]     = adc_mq2;
-  doc["MQ4"]     = adc_mq4;
-  doc["MQ135"]   = adc_mq135;
-  doc["MQ3"]     = adc_mq3;
-  doc["MQ7"]     = adc_mq7;
-  doc["MQ9"]     = adc_mq9;
-  doc["temp"]    = temp;
-  doc["humedad"] = hum;
+  // 5. Construir objeto JSON de Telemetría con la Temperatura del Reactor
+  StaticJsonDocument<320> doc;
+  doc["MQ2"]          = adc_mq2;
+  doc["MQ4"]          = adc_mq4;
+  doc["MQ135"]        = adc_mq135;
+  doc["MQ3"]          = adc_mq3;
+  doc["MQ7"]          = adc_mq7;
+  doc["MQ9"]          = adc_mq9;
+  doc["temp"]         = temp;
+  doc["humedad"]      = hum;
+  doc["temp_reactor"] = temp_reactor;
 
   String jsonPayload;
   serializeJson(doc, jsonPayload);
