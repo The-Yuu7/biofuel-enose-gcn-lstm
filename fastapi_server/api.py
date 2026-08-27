@@ -214,6 +214,8 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+from fastapi.staticfiles import StaticFiles
+
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
@@ -222,6 +224,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount local static assets for offline SCADA UI rendering (without internet CDN)
+base_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = os.path.join(base_dir, "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 
 # Pydantic schemas for request validation
