@@ -1,21 +1,21 @@
 /*
   ======================================================================
-     CÓDIGO OFICIAL ESP32-CAM PARA SISTEMA BIO-E-NOSE (PIRÓLISIS)
+     CÓDIGO OFICIAL ESP32 WROOM (30 PINES) - BIO-E-NOSE PIRÓLISIS
   ======================================================================
-  Microcontrolador: ESP32-CAM (AI-Thinker) / ESP32 Dev Module
+  Microcontrolador: ESP32 WROOM-32 (30 Pines)
   Red WiFi Target : MAGLIONI (Raspberry Pi AP)
   Password WiFi   : ingeapruebemecon20
   Servidor Target : http://10.42.0.1:8000/sensor_data
   ======================================================================
-  CONEXIÓN DE PINES SEGURAS (SIN REBOOT):
-    - 5V            -> Pin 5V (Fuente Alimentación 5V)
-    - GND           -> Pin GND (Masa común)
-    - SDA (I2C)     -> Pin GPIO 14 (Salida LV1 del Convertidor de Nivel)
-    - SCL (I2C)     -> Pin GPIO 15 (Salida LV2 del Convertidor de Nivel)
-    - DHT22 DATA    -> Pin GPIO 13 (con resistencia pull-up 10k a 3.3V)
-    - MAX6675 SO    -> Pin GPIO 16 (Pin seguro anti-reboot)
-    - MAX6675 CS    -> Pin GPIO 2  (Chip Select)
-    - MAX6675 SCK   -> Pin GPIO 4  (Clock SPI)
+  MAPA DE PINES ESP32 WROOM 30 PINES:
+    - SDA I2C (ADS1115) -> Pin GPIO 21 (Entrada LV1 del Nivelador Lógico)
+    - SCL I2C (ADS1115) -> Pin GPIO 22 (Entrada LV2 del Nivelador Lógico)
+    - DHT22 DATA        -> Pin GPIO 4  (Sensor Ambiental de Cámara)
+    - MAX6675 SO        -> Pin GPIO 19 (Datos Termopar Reactor)
+    - MAX6675 CS        -> Pin GPIO 5  (Chip Select Termopar Reactor)
+    - MAX6675 SCK       -> Pin GPIO 18 (Clock SPI Termopar Reactor)
+    - VCC / LV          -> Pin 3V3
+    - GND               -> Pin GND (Masa común)
   ======================================================================
 */
 
@@ -35,17 +35,18 @@ const char* password = "ingeapruebemecon20";
 const char* serverUrl = "http://10.42.0.1:8000/sensor_data";
 
 // ----------------------------------------------------------------------
-// CONFIGURACIÓN DE PINES Y HARDWARE SEGURA
+// CONFIGURACIÓN DE PINES HARDWARE NATIVOS ESP32 WROOM
 // ----------------------------------------------------------------------
-#define I2C_SDA 14       // Pin GPIO 14 para SDA I2C
-#define I2C_SCL 15       // Pin GPIO 15 para SCL I2C
-#define DHTPIN  13       // Pin GPIO 13 para datos del DHT22
+#define I2C_SDA 21       // Pin nativo Hardware I2C SDA
+#define I2C_SCL 22       // Pin nativo Hardware I2C SCL
+
+#define DHTPIN  4        // Pin GPIO 4 para datos del DHT22
 #define DHTTYPE DHT22
 
-// Pines del MAX6675 (Termopar del Reactor) - GPIO 16 evita el reinicio
-#define MAX_SO  16
-#define MAX_CS  2
-#define MAX_SCK 4
+// Pines VSPI Nativos para MAX6675 (Termopar del Reactor)
+#define MAX_SO  19       // VSPI MISO
+#define MAX_CS  5        // VSPI SS
+#define MAX_SCK 18       // VSPI CLK
 
 // Instancias de Hardware
 Adafruit_ADS1115 ads1; // Dirección 0x48 (ADDR -> GND)
@@ -58,16 +59,16 @@ void setup() {
   delay(1000);
   
   Serial.println("\n======================================================================");
-  Serial.println("     INICIANDO EMISOR ESP32-CAM - BIO-E-NOSE PIRÓLISIS");
+  Serial.println("  INICIANDO EMISOR ESP32 WROOM-32 (30 PINES) - BIO-E-NOSE PIRÓLISIS");
   Serial.println("======================================================================");
 
-  // 1. Inicializar bus I2C en pines dedicados GPIO 14 (SDA) y GPIO 15 (SCL)
-  Wire.begin(I2C_SDA, I2C_SCL, 100000);
-  Serial.println("[INFO] Bus I2C iniciado en GPIO 14 (SDA) y GPIO 15 (SCL).");
+  // 1. Inicializar bus I2C Nativo en GPIO 21 (SDA) y GPIO 22 (SCL)
+  Wire.begin(I2C_SDA, I2C_SCL);
+  Serial.println("[INFO] Bus I2C Nativo iniciado en GPIO 21 (SDA) y GPIO 22 (SCL).");
 
   // 2. Inicializar ADS1115 #1 (0x48)
   if (!ads1.begin(0x48, &Wire)) {
-    Serial.println("[ERROR CRÍTICO] No se encontró el ADS1115 #1 en dirección 0x48.");
+    Serial.println("[ERROR] No se encontró ADS1115 #1 (0x48). Revisa LV1(21), LV2(22) y 5V.");
   } else {
     ads1.setGain(GAIN_ONE); // Rango +/- 4.096V
     Serial.println("[OK] ADS1115 #1 (0x48) inicializado.");
@@ -75,7 +76,7 @@ void setup() {
 
   // 3. Inicializar ADS1115 #2 (0x49)
   if (!ads2.begin(0x49, &Wire)) {
-    Serial.println("[ERROR CRÍTICO] No se encontró el ADS1115 #2 en dirección 0x49.");
+    Serial.println("[ERROR] No se encontró ADS1115 #2 (0x49). Revisa ADDR a 5V.");
   } else {
     ads2.setGain(GAIN_ONE); // Rango +/- 4.096V
     Serial.println("[OK] ADS1115 #2 (0x49) inicializado.");
@@ -83,8 +84,8 @@ void setup() {
 
   // 4. Inicializar DHT22 y Termopar MAX6675
   dht.begin();
-  Serial.println("[OK] Sensor DHT22 iniciado en GPIO 13.");
-  Serial.println("[OK] Termopar MAX6675 del Reactor iniciado en SO=16, CS=2, SCK=4.");
+  Serial.println("[OK] Sensor DHT22 iniciado en GPIO 4.");
+  Serial.println("[OK] Termopar MAX6675 iniciado en SO=19, CS=5, SCK=18.");
 
   // 5. Conexión WiFi a la Raspberry Pi
   WiFi.mode(WIFI_STA);
@@ -101,11 +102,11 @@ void setup() {
   }
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("\n[WIFI OK] Conectado exitosamente!");
-    Serial.print("[WIFI OK] Dirección IP asignada al ESP32-CAM: ");
+    Serial.println("\n[WIFI OK] ¡Conectado exitosamente!");
+    Serial.print("[WIFI OK] IP asignada al ESP32 WROOM: ");
     Serial.println(WiFi.localIP());
   } else {
-    Serial.println("\n[WIFI ERROR] No se pudo conectar a la red WiFi. Verifique la Raspberry Pi.");
+    Serial.println("\n[WIFI ERROR] No se pudo conectar a la red MAGLIONI.");
   }
 }
 
@@ -133,16 +134,16 @@ void loop() {
   float hum  = dht.readHumidity();
   float temp_reactor = thermocouple.readCelsius();
 
-  // Reemplazar valores NaN por valores por defecto si hay fallo puntual de lectura
+  // Reemplazar valores NaN por protección
   if (isnan(temp)) temp = 25.0;
   if (isnan(hum))  hum  = 50.0;
-  if (isnan(temp_reactor) || temp_reactor <= 0) temp_reactor = 430.0; // Rango térmico estándar de pirólisis
+  if (isnan(temp_reactor) || temp_reactor <= 0) temp_reactor = 430.0;
 
-  // 4. Imprimir lecturas en consola Serie para depuración
+  // 4. Imprimir en Consola Serie
   Serial.printf("[SENSORES] MQ2: %d | MQ4: %d | MQ135: %d | MQ3: %d | MQ7: %d | MQ9: %d | Temp Cam: %.1f°C | Hum: %.1f%% | TEMP REACTOR: %.1f°C\n",
                 adc_mq2, adc_mq4, adc_mq135, adc_mq3, adc_mq7, adc_mq9, temp, hum, temp_reactor);
 
-  // 5. Construir objeto JSON de Telemetría con la Temperatura del Reactor
+  // 5. Construir objeto JSON
   StaticJsonDocument<320> doc;
   doc["MQ2"]          = adc_mq2;
   doc["MQ4"]          = adc_mq4;
@@ -167,11 +168,11 @@ void loop() {
   if (httpResponseCode > 0) {
     Serial.printf("[HTTP POST OK] Respuesta del Servidor Raspberry Pi (%d)\n", httpResponseCode);
   } else {
-    Serial.printf("[HTTP ERROR] Fallo al enviar POST. Código de error: %s\n", http.errorToString(httpResponseCode).c_str());
+    Serial.printf("[HTTP ERROR] Fallo al enviar POST. Error: %s\n", http.errorToString(httpResponseCode).c_str());
   }
 
   http.end();
 
-  // Transmitir cada 1 segundo (1000 ms)
+  // Transmitir cada 1 segundo
   delay(1000);
 }
