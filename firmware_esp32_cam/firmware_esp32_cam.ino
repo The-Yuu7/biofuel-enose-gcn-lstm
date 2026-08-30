@@ -93,7 +93,7 @@ void loop() {
   Serial.printf("📊 SENSORES MQ (ADC / VOLTIOS):\n");
   Serial.printf("   - MQ2   : %5d  (%.3f V)\n", mq2, v_mq2);
   Serial.printf("   - MQ4   : %5d  (%.3f V)\n", mq4, v_mq4);
-  Serial.printf("   - MQ135 : %5d  (%.3f V)\n", mq135, v_mq135);
+  Serial.printf("   - MQ135 : %5d  (%.3f V)\n", mq3, v_mq135);
   Serial.printf("   - MQ3   : %5d  (%.3f V)\n", mq3, v_mq3);
   Serial.printf("   - MQ7   : %5d  (%.3f V)\n", mq7, v_mq7);
   Serial.printf("   - MQ9   : %5d  (%.3f V)\n", mq9, v_mq9);

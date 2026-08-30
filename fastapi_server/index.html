@@ -165,12 +165,32 @@
         /* Material symbols icon fallback */
         .material-symbols-outlined { font-size: 18px; display: inline-block; vertical-align: middle; margin-right: 4px; }
 
-        /* Scrollable container */
+        /* Scrollable container & animations */
         .overflow-y-auto { overflow-y: auto; }
         .p-container-padding { padding: 24px; }
         .circular-progress { transform: rotate(-90deg); }
         .loading-spinner { border: 3px solid rgba(0, 0, 0, 0.05); width: 30px; height: 30px; border-radius: 50%; border-left-color: #00295d; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 📱 RESPONSIVE DESIGN RULES FOR MOBILE, TABLET AND PC */
+        @media (max-width: 1023px) {
+            aside#sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform 0.3s ease; z-index: 50; }
+            aside#sidebar.active { transform: translateX(0); }
+            .p-container-padding { padding: 14px; }
+            header { padding: 0 14px; }
+        }
+        @media (max-width: 767px) {
+            body { font-size: 13px; }
+            .grid-cols-12 { display: flex; flex-direction: column; gap: 14px; }
+            .glass-panel { padding: 14px; margin-bottom: 14px; }
+            .text-headline-lg { font-size: 20px; }
+            .text-headline-sm { font-size: 16px; }
+            .text-display-lg { font-size: 28px; }
+            header { height: 56px; min-height: 56px; }
+            header h2 { font-size: 15px; }
+            #status-badge { font-size: 10px; padding: 4px 8px; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+        }
     </style>
 </head>
 <body class="text-on-background overflow-hidden h-screen flex relative">
@@ -265,6 +285,32 @@
         
         <!-- VIEW 1: DASHBOARD (Default) -->
         <div id="view-dashboard" class="space-y-panel-gap">
+
+            <!-- BARRA DE CONTROL DE EXTRACCIÓN MANUAL DE DATOS CSV -->
+            <div class="glass-panel rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 border border-outline-variant/40 shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div id="rec-dot" class="w-3.5 h-3.5 rounded-full bg-slate-400"></div>
+                    <div>
+                        <h4 id="rec-status-title" class="text-sm font-bold text-primary">MODO SOLO MONITOREO EN VIVO</h4>
+                        <p id="rec-status-desc" class="text-xs text-on-surface-variant">Los datos se visualizan en pantalla sin guardarse en disco. Presiona 'Iniciar Grabación' para extraer datos a CSV.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="btn-rec-toggle" onclick="toggleManualRecording()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm active:scale-95">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        <span id="rec-btn-text">Iniciar Grabación CSV</span>
+                    </button>
+                    <button onclick="downloadCSV()" class="px-4 py-2 bg-primary text-white font-bold text-xs rounded-lg hover:brightness-110 transition-all flex items-center gap-2 shadow-sm active:scale-95">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Descargar CSV (<span id="csv-count-badge">0</span>)
+                    </button>
+                    <button onclick="clearCSV()" class="px-3 py-2 bg-error/10 text-error font-bold text-xs rounded-lg hover:bg-error/20 transition-all flex items-center gap-1 active:scale-95">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+
             <!-- BENTO ROW 1: Hero Stats & Grade -->
             <div class="grid grid-cols-12 gap-panel-gap">
                 <!-- HERO GAUGES -->
@@ -1001,7 +1047,60 @@
 
     // Active Alerts tracking
     let alertsHistory = [];
-    let lastAlertTime = {};
+    // Manual Recording state & handlers
+    let isManualRecordingActive = false;
+
+    function toggleManualRecording() {
+        const endpoint = isManualRecordingActive ? '/recording/stop' : '/recording/start';
+        fetch(endpoint, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            updateRecordingUI(data.is_recording, data.recorded_samples);
+        })
+        .catch(err => console.error("Error alternando grabación manual:", err));
+    }
+
+    function updateRecordingUI(isRecording, count) {
+        isManualRecordingActive = isRecording;
+        const dot = document.getElementById('rec-dot');
+        const title = document.getElementById('rec-status-title');
+        const desc = document.getElementById('rec-status-desc');
+        const btnText = document.getElementById('rec-btn-text');
+        const btnToggle = document.getElementById('btn-rec-toggle');
+        const badge = document.getElementById('csv-count-badge');
+
+        if (badge) badge.innerText = count || 0;
+
+        if (isRecording) {
+            if (dot) dot.className = "w-3.5 h-3.5 rounded-full bg-red-600 animate-ping";
+            if (title) { title.innerText = "⏺️ GRABACIÓN MANUAL ACTIVA (GUARDANDO A CSV)"; title.className = "text-sm font-bold text-red-600"; }
+            if (desc) desc.innerText = `Extrayendo y registrando lecturas en CSV en tiempo real (${count || 0} muestras guardadas).`;
+            if (btnText) btnText.innerText = "⏹️ Detener Grabación";
+            if (btnToggle) btnToggle.className = "px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg hover:bg-red-700 transition-all flex items-center gap-2 shadow-sm active:scale-95";
+        } else {
+            if (dot) dot.className = "w-3.5 h-3.5 rounded-full bg-slate-400";
+            if (title) { title.innerText = "MODO SOLO MONITOREO EN VIVO"; title.className = "text-sm font-bold text-primary"; }
+            if (desc) desc.innerText = "Los datos solo se visualizan en pantalla sin guardarse en disco. Presiona 'Iniciar Grabación' para extraer datos a CSV.";
+            if (btnText) btnText.innerText = "Iniciar Grabación CSV";
+            if (btnToggle) btnToggle.className = "px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-sm active:scale-95";
+        }
+    }
+
+    function downloadCSV() {
+        window.location.href = '/recording/download';
+    }
+
+    function clearCSV() {
+        if (confirm("¿Estás seguro de que deseas borrar el archivo CSV de datos registrados?")) {
+            fetch('/recording/clear', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                updateRecordingUI(false, 0);
+                alert("Archivo CSV limpiado correctamente.");
+            })
+            .catch(err => console.error("Error al limpiar CSV:", err));
+        }
+    }
 
     function pollLatestResult() {
         fetch('/latest_result')
@@ -1010,6 +1109,9 @@
             return response.json();
         })
         .then(data => {
+            // Update manual recording state UI
+            updateRecordingUI(data.is_recording, data.recorded_samples);
+
             // 1. Update progress bars and circular gauges
             if (data.latest_values) {
                 Object.keys(data.latest_values).forEach(key => {
@@ -1047,11 +1149,11 @@
             } else if (data.buffer_size < 30) {
                 statusBadge.className = "px-3 py-1 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center gap-2";
                 statusDot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
-                statusText.innerHTML = `🔥 BÚFER REACCIÓN: ${data.buffer_size}/30s (CSV: ${data.recorded_samples || 0}/50)`;
+                statusText.innerHTML = `🔥 BÚFER REACCIÓN: ${data.buffer_size}/30s`;
             } else {
                 statusBadge.className = "px-3 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded-full flex items-center gap-2";
                 statusDot.className = "w-2 h-2 rounded-full bg-secondary animate-pulse";
-                statusText.innerHTML = `🔥 MONITORIZANDO VAPORES (CSV: ${data.recorded_samples || 0}/50 MUESTRAS)`;
+                statusText.innerHTML = `🔥 MONITORIZANDO VAPORES EN VIVO`;
             }
 
             // 3. Update Environment Stability Description (if elements exist)

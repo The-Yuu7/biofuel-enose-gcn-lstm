@@ -141,11 +141,10 @@ async def lifespan(app: FastAPI):
     
     base_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Initialize state variables for rolling window live monitoring and pyrolysis dataset logging
+    # Initialize state variables for rolling window live monitoring and MANUAL pyrolysis dataset logging
     app.state.sensor_buffer = []
     app.state.recorded_samples_count = 0
-    app.state.target_samples = 50
-    app.state.auto_record_optimal = True
+    app.state.is_recording = False  # Modo manual: por defecto solo monitorea sin guardar
     app.state.csv_path = os.path.join(base_dir, "data_capturada_pirolisis.csv")
     app.state.latest_result = {
         "prediction": "Esperando datos...",
@@ -155,8 +154,8 @@ async def lifespan(app: FastAPI):
         "buffer_size": 0,
         "ambient_status": "AIRE AMBIENTE (SENSORES LIMPIOS)",
         "is_ambient": True,
+        "is_recording": False,
         "recorded_samples": 0,
-        "target_samples": 50,
         "latest_values": {k: 0.0 for k in SENSORES}
     }
     
@@ -487,7 +486,7 @@ def predict_quality_raw(request: RawPredictionRequest) -> Dict[str, Any]:
 def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
     """Receives a single timestep of sensor readings and appends it to the rolling buffer.
     Runs prediction and diagnostics automatically once the buffer is full (30 timesteps).
-    Auto-saves optimal samples to CSV up to the 50-sample research target.
+    Saves sensor data to CSV ONLY IF manual recording is active.
     """
     buffer = app.state.sensor_buffer
     buffer.append(request)
@@ -507,8 +506,8 @@ def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
             ])
             prediction_res = process_prediction(raw_window)
             
-            # Auto-record optimal samples to research dataset CSV
-            if prediction_res["prediction"] == "ALTA" and app.state.auto_record_optimal and app.state.recorded_samples_count < app.state.target_samples:
+            # Record to CSV ONLY when user activates manual recording mode
+            if getattr(app.state, 'is_recording', False):
                 try:
                     import csv
                     file_exists = os.path.exists(app.state.csv_path)
@@ -519,7 +518,7 @@ def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
                         for row in raw_window:
                             writer.writerow(row)
                     app.state.recorded_samples_count += 1
-                    logger.info("¡Muestra Óptima N° %d/50 registrada automáticamente en CSV!", app.state.recorded_samples_count)
+                    logger.info("¡Muestra N° %d registrada en CSV (Modo Manual Active)!", app.state.recorded_samples_count)
                 except Exception as csv_err:
                     logger.error("Error guardando muestra en CSV: %s", csv_err)
             
@@ -531,12 +530,12 @@ def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
                 "buffer_size": len(buffer),
                 "ambient_status": ambient_status,
                 "is_ambient": is_ambient,
+                "is_recording": getattr(app.state, 'is_recording', False),
                 "recorded_samples": app.state.recorded_samples_count,
-                "target_samples": app.state.target_samples,
                 "latest_values": request.model_dump()
             }
-            logger.info("Auto-analysis complete. Quality: %s | Ambient: %s | CSV Progress: %d/50", 
-                        prediction_res["prediction"], ambient_status, app.state.recorded_samples_count)
+            logger.info("Auto-analysis complete. Quality: %s | Ambient: %s | Recording Active: %s (%d samples)", 
+                        prediction_res["prediction"], ambient_status, getattr(app.state, 'is_recording', False), app.state.recorded_samples_count)
         except Exception as err:
             logger.error("Error during auto-analysis: %s", err)
     else:
@@ -544,14 +543,15 @@ def receive_sensor_data(request: TimestepData) -> Dict[str, Any]:
         app.state.latest_result["buffer_size"] = len(buffer)
         app.state.latest_result["ambient_status"] = ambient_status
         app.state.latest_result["is_ambient"] = is_ambient
+        app.state.latest_result["is_recording"] = getattr(app.state, 'is_recording', False)
         app.state.latest_result["recorded_samples"] = app.state.recorded_samples_count
-        app.state.latest_result["target_samples"] = app.state.target_samples
         app.state.latest_result["latest_values"] = request.model_dump()
         
     return {
         "status": "success",
         "buffer_size": len(buffer),
         "ambient_status": ambient_status,
+        "is_recording": getattr(app.state, 'is_recording', False),
         "recorded_samples": app.state.recorded_samples_count
     }
 
@@ -564,25 +564,64 @@ def get_latest_result() -> Dict[str, Any]:
 
 @app.get("/recording_status", status_code=status.HTTP_200_OK)
 def get_recording_status() -> Dict[str, Any]:
-    """Returns current CSV recording progress and research dataset statistics."""
+    """Returns current CSV manual recording progress and status."""
     return {
+        "is_recording": getattr(app.state, 'is_recording', False),
         "recorded_samples": app.state.recorded_samples_count,
-        "target_samples": app.state.target_samples,
-        "auto_record_optimal": app.state.auto_record_optimal,
-        "csv_path": app.state.csv_path,
-        "percentage": round((app.state.recorded_samples_count / app.state.target_samples) * 100, 1)
+        "csv_path": app.state.csv_path
     }
 
 
-@app.post("/toggle_auto_record", status_code=status.HTTP_200_OK)
-def toggle_auto_record() -> Dict[str, Any]:
-    """Toggles automatic CSV recording of optimal pyrolysis samples on/off."""
-    app.state.auto_record_optimal = not app.state.auto_record_optimal
-    logger.info("Auto-record mode changed to: %s", app.state.auto_record_optimal)
+@app.post("/recording/start", status_code=status.HTTP_200_OK)
+def start_recording() -> Dict[str, Any]:
+    """Starts manual CSV data logging."""
+    app.state.is_recording = True
+    logger.info("Grabación manual de CSV INICIADA por el usuario.")
     return {
         "status": "success",
-        "auto_record_optimal": app.state.auto_record_optimal
+        "is_recording": True,
+        "recorded_samples": app.state.recorded_samples_count
     }
+
+
+@app.post("/recording/stop", status_code=status.HTTP_200_OK)
+def stop_recording() -> Dict[str, Any]:
+    """Stops manual CSV data logging."""
+    app.state.is_recording = False
+    logger.info("Grabación manual de CSV DETENIDA por el usuario.")
+    return {
+        "status": "success",
+        "is_recording": False,
+        "recorded_samples": app.state.recorded_samples_count
+    }
+
+
+@app.post("/recording/clear", status_code=status.HTTP_200_OK)
+def clear_recording() -> Dict[str, Any]:
+    """Clears the recorded CSV dataset file and resets the counter."""
+    if os.path.exists(app.state.csv_path):
+        os.remove(app.state.csv_path)
+    app.state.recorded_samples_count = 0
+    app.state.is_recording = False
+    logger.info("Archivo CSV borrado/limpiado por el usuario.")
+    return {
+        "status": "success",
+        "is_recording": False,
+        "recorded_samples": 0
+    }
+
+
+@app.get("/recording/download")
+def download_recording():
+    """Downloads the recorded CSV dataset file."""
+    from fastapi.responses import FileResponse
+    if os.path.exists(app.state.csv_path):
+        return FileResponse(
+            app.state.csv_path, 
+            media_type="text/csv", 
+            filename="registros_nariz_electronica_pirolisis.csv"
+        )
+    raise HTTPException(status_code=404, detail="No se ha grabado ningún archivo CSV aún.")
 
 
 @app.get("/reference_profile", status_code=status.HTTP_200_OK)
