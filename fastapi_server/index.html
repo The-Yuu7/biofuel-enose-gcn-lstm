@@ -37,30 +37,19 @@
               "secondary-fixed": "#d7eb9b",
               "on-primary-fixed-variant": "#22467f",
               "surface-variant": "#dde4e3",
-              "surface-bright": "#f4fbfa",
-              "surface-tint": "#3d5e99",
-              "on-tertiary-container": "#85b5c4",
-              "on-tertiary-fixed": "#001f27",
-              "on-error-container": "#93000a",
-              "primary-fixed-dim": "#acc7ff",
-              "inverse-primary": "#acc7ff",
-              "on-error": "#ffffff",
-              "surface-container-high": "#e2eae9",
-              "background": "#f4fbfa",
-              "surface-container-highest": "#dde4e3",
-              "on-surface": "#161d1d",
-              "primary": "#00295d",
-              "inverse-surface": "#2b3231",
-              "tertiary": "#00303a",
-              "secondary-fixed-dim": "#bbcf81",
-              "tertiary-fixed-dim": "#9ecedd",
-              "tertiary-container": "#124754",
-              "surface-container-lowest": "#ffffff",
-              "primary-container": "#1b4079",
-              "outline-variant": "#c4c6d1",
-              "tertiary-fixed": "#baeafa",
-              "surface": "#f4fbfa",
-              "error": "#ba1a1a"
+            "colors": {
+              "primary": "#047857",
+              "primary-container": "#064E3B",
+              "on-primary": "#ffffff",
+              "secondary": "#0D9488",
+              "secondary-container": "#047857",
+              "on-secondary-container": "#ffffff",
+              "background": "#F8FAFC",
+              "surface": "#ffffff",
+              "on-surface": "#0F172A",
+              "on-surface-variant": "#475569",
+              "outline-variant": "#E2E8F0",
+              "error": "#EF4444"
             },
             "borderRadius": {
               "DEFAULT": "0.25rem",
@@ -85,17 +74,6 @@
               "headline-lg": ["Inter"],
               "label-lg": ["Inter"],
               "label-sm": ["Inter"]
-            },
-            "fontSize": {
-              "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-              "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
-              "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-              "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-              "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-              "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-              "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-              "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
-              "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}]
             }
           },
         },
@@ -103,25 +81,26 @@
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4fbfa; color: #161d1d; height: 100vh; overflow: hidden; display: flex; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F8FAFC; color: #0F172A; height: 100vh; overflow: hidden; display: flex; }
         
-        /* Sidebar Styling */
-        aside#sidebar { width: 260px; min-width: 260px; background-color: #00295d; color: #ffffff; padding: 20px; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #1b4079; z-index: 50; }
+        /* Sidebar Styling - Temática Bio-Energía Verde Esmeralda */
+        aside#sidebar { width: 260px; min-width: 260px; background-color: #064E3B; color: #ffffff; padding: 20px; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #047857; z-index: 50; }
         aside#sidebar h1 { font-size: 22px; font-weight: 700; color: #ffffff; }
-        aside#sidebar p { font-size: 12px; color: #acc7ff; }
+        aside#sidebar p { font-size: 12px; color: #A7F3D0; }
         aside#sidebar nav { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        aside#sidebar nav button { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; background: transparent; border: none; color: #d7e2ff; font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; width: 100%; transition: all 0.2s; }
-        aside#sidebar nav button:hover, aside#sidebar nav button.bg-secondary-container { background-color: #1b4079; color: #ffffff; }
+        aside#sidebar nav button { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; background: transparent; border: none; color: #D1FAE5; font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; width: 100%; transition: all 0.2s; }
+        aside#sidebar nav button:hover { background-color: #065F46; color: #ffffff; }
+        aside#sidebar nav button.active, aside#sidebar nav button.bg-secondary-container { background-color: #047857; color: #ffffff; shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         /* Main Layout & Header */
-        main { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; background-color: #f4fbfa; }
-        header { height: 64px; min-height: 64px; background: rgba(244, 251, 250, 0.95); border-bottom: 1px solid #dde4e3; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
-        header h2 { font-size: 18px; font-weight: 700; color: #00295d; }
+        main { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; background-color: #F8FAFC; }
+        header { height: 64px; min-height: 64px; background: rgba(255, 255, 255, 0.95); border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+        header h2 { font-size: 18px; font-weight: 700; color: #064E3B; }
         
         /* Status Badges & Buttons */
-        #status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+        #status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
         button { cursor: pointer; border-radius: 6px; font-family: inherit; }
-        .glass-panel { background: #ffffff; border: 1px solid #dde4e3; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); margin-bottom: 20px; }
+        .glass-panel { background: #ffffff; border: 1px solid #E2E8F0; border-radius: 14px; padding: 20px; box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.04); margin-bottom: 20px; }
         
         /* Grid Bento Layout */
         .grid { display: grid; gap: 20px; }
@@ -147,10 +126,10 @@
         .space-y-2 > * + * { margin-top: 8px; }
 
         /* Typography & Colors */
-        .text-primary { color: #00295d; }
-        .text-secondary { color: #546524; }
-        .bg-primary { background-color: #00295d; }
-        .bg-secondary { background-color: #546524; }
+        .text-primary { color: #047857; }
+        .text-secondary { color: #0D9488; }
+        .bg-primary { background-color: #047857; }
+        .bg-secondary { background-color: #0D9488; }
         .font-bold { font-weight: 700; }
         .font-extrabold { font-weight: 800; }
         .text-headline-lg { font-size: 26px; }
@@ -232,8 +211,8 @@
             <span id="alerts-badge" class="hidden absolute right-3 px-1.5 py-0.5 bg-error text-white font-bold text-[9px] rounded-full">0</span>
         </button>
     </nav>
-    <div class="mt-auto space-y-2 pt-4 border-t border-on-primary/10">
-        <button onclick="window.print()" class="w-full bg-secondary-container text-on-secondary-container font-bold py-3 rounded-lg mb-4 flex items-center justify-center gap-2 hover:brightness-110 transition-all">
+    <div class="mt-auto space-y-2 pt-4 border-t border-white/10">
+        <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg mb-4 flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
             Export Report
         </button>
