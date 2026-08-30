@@ -103,25 +103,27 @@
     </script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4fbfa; color: #161d1d; height: 100vh; overflow: hidden; display: flex; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #060b19; color: #e2e8f0; height: 100vh; overflow: hidden; display: flex; }
         
-        /* Sidebar Styling */
-        aside#sidebar { width: 260px; min-width: 260px; background-color: #00295d; color: #ffffff; padding: 20px; display: flex; flex-direction: column; height: 100%; border-right: 1px solid #1b4079; z-index: 50; }
-        aside#sidebar h1 { font-size: 22px; font-weight: 700; color: #ffffff; }
-        aside#sidebar p { font-size: 12px; color: #acc7ff; }
-        aside#sidebar nav { margin-top: 30px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        aside#sidebar nav button { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 8px; background: transparent; border: none; color: #d7e2ff; font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; width: 100%; transition: all 0.2s; }
-        aside#sidebar nav button:hover, aside#sidebar nav button.bg-secondary-container { background-color: #1b4079; color: #ffffff; }
+        /* Cyber-Tech Sidebar Styling */
+        aside#sidebar { width: 260px; min-width: 260px; background-color: #081024; color: #ffffff; padding: 20px; display: flex; flex-direction: column; height: 100%; border-right: 1px solid rgba(0, 240, 255, 0.2); z-index: 50; box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5); }
+        aside#sidebar h1 { font-size: 22px; font-weight: 800; color: #00f0ff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); letter-spacing: 0.05em; }
+        aside#sidebar p { font-size: 11px; color: #94a3b8; letter-spacing: 0.1em; text-transform: uppercase; }
+        aside#sidebar nav { margin-top: 30px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+        aside#sidebar nav button { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); color: #94a3b8; font-size: 14px; font-weight: 600; cursor: pointer; text-align: left; width: 100%; transition: all 0.25s ease; }
+        aside#sidebar nav button:hover { background-color: rgba(0, 240, 255, 0.1); color: #00f0ff; border-color: rgba(0, 240, 255, 0.4); transform: translateX(3px); }
+        aside#sidebar nav button.bg-secondary-container { background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(168, 85, 247, 0.2)); color: #00f0ff; border: 1px solid #00f0ff; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3); }
         
-        /* Main Layout & Header */
-        main { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; background-color: #f4fbfa; }
-        header { height: 64px; min-height: 64px; background: rgba(244, 251, 250, 0.95); border-bottom: 1px solid #dde4e3; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
-        header h2 { font-size: 18px; font-weight: 700; color: #00295d; }
+        /* Main Layout & Cyber Header */
+        main { flex: 1; display: flex; flex-direction: column; height: 100%; overflow: hidden; background-color: #060b19; background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.05), transparent 70%); }
+        header { height: 64px; min-height: 64px; background: rgba(8, 16, 36, 0.9); border-bottom: 1px solid rgba(0, 240, 255, 0.2); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        header h2 { font-size: 18px; font-weight: 800; color: #00f0ff; text-shadow: 0 0 8px rgba(0, 240, 255, 0.4); letter-spacing: 0.05em; }
         
-        /* Status Badges & Buttons */
-        #status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background-color: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
-        button { cursor: pointer; border-radius: 6px; font-family: inherit; }
-        .glass-panel { background: #ffffff; border: 1px solid #dde4e3; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); margin-bottom: 20px; }
+        /* Status Badges & Cyber Panels */
+        #status-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; background-color: rgba(0, 240, 255, 0.1); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.3); shadow: 0 0 10px rgba(0,240,255,0.2); }
+        button { cursor: pointer; border-radius: 8px; font-family: inherit; }
+        .glass-panel { background: rgba(11, 22, 48, 0.85); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 14px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 15px rgba(0, 240, 255, 0.03); margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .glass-panel:hover { border-color: rgba(0, 240, 255, 0.4); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 240, 255, 0.15); }
         
         /* Grid Bento Layout */
         .grid { display: grid; gap: 20px; }
@@ -147,20 +149,20 @@
         .space-y-2 > * + * { margin-top: 8px; }
 
         /* Typography & Colors */
-        .text-primary { color: #00295d; }
-        .text-secondary { color: #546524; }
-        .bg-primary { background-color: #00295d; }
-        .bg-secondary { background-color: #546524; }
+        .text-primary { color: #00f0ff; }
+        .text-secondary { color: #10b981; }
+        .bg-primary { background-color: #081024; }
+        .bg-secondary { background-color: #10b981; }
         .font-bold { font-weight: 700; }
         .font-extrabold { font-weight: 800; }
         .text-headline-lg { font-size: 26px; }
         .text-headline-sm { font-size: 18px; }
         .text-display-lg { font-size: 38px; font-weight: 700; }
 
-        /* Table styling */
+        /* Table styling Cyber Dark */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eef5f4; font-size: 13px; }
-        th { background-color: #eef5f4; color: #00295d; font-weight: 700; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(0, 240, 255, 0.1); font-size: 13px; color: #cbd5e1; }
+        th { background-color: rgba(0, 240, 255, 0.08); color: #00f0ff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
         /* Material symbols icon fallback */
         .material-symbols-outlined { font-size: 18px; display: inline-block; vertical-align: middle; margin-right: 4px; }
@@ -169,7 +171,7 @@
         .overflow-y-auto { overflow-y: auto; }
         .p-container-padding { padding: 24px; }
         .circular-progress { transform: rotate(-90deg); }
-        .loading-spinner { border: 3px solid rgba(0, 0, 0, 0.05); width: 30px; height: 30px; border-radius: 50%; border-left-color: #00295d; animation: spin 1s linear infinite; }
+        .loading-spinner { border: 3px solid rgba(0, 240, 255, 0.1); width: 30px; height: 30px; border-radius: 50%; border-left-color: #00f0ff; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 📱 RESPONSIVE DESIGN RULES FOR MOBILE, TABLET AND PC */
@@ -931,14 +933,14 @@
 </main>
 
 <script>
-    // System Config
+    // System Config - Paleta Neón Cyber-Tech
     const sensorConfig = {
-        MQ2: { min: 5000, max: 40000, default: 23234.70, unit: 'ADC', label: 'MQ2 (GLP / Alcanos)', color: '#1B4079' },
-        MQ4: { min: 5000, max: 40000, default: 22221.06, unit: 'ADC', label: 'MQ4 (Metano - CH4)', color: '#4D7C8A' },
-        MQ135: { min: 5000, max: 40000, default: 22647.17, unit: 'ADC', label: 'MQ135 (VOCs / Benceno)', color: '#8FAD88' },
-        MQ3: { min: 1000, max: 20000, default: 2826.36, unit: 'ADC', label: 'MQ3 (Vapores de Alcohol)', color: '#8A70A4' },
-        MQ7: { min: 5000, max: 40000, default: 19540.74, unit: 'ADC', label: 'MQ7 (Monóxido de Carbono)', color: '#D9825F' },
-        MQ9: { min: 1000, max: 20000, default: 2792.15, unit: 'ADC', label: 'MQ9 (Hidrocarburos Medios)', color: '#C8A366' },
+        MQ2: { min: 5000, max: 40000, default: 23234.70, unit: 'ADC', label: 'MQ2 (GLP / Alcanos)', color: '#00f0ff' },
+        MQ4: { min: 5000, max: 40000, default: 22221.06, unit: 'ADC', label: 'MQ4 (Metano - CH4)', color: '#3b82f6' },
+        MQ135: { min: 5000, max: 40000, default: 22647.17, unit: 'ADC', label: 'MQ135 (VOCs / Benceno)', color: '#10b981' },
+        MQ3: { min: 1000, max: 20000, default: 2826.36, unit: 'ADC', label: 'MQ3 (Vapores de Alcohol)', color: '#a855f7' },
+        MQ7: { min: 5000, max: 40000, default: 19540.74, unit: 'ADC', label: 'MQ7 (Monóxido de Carbono)', color: '#f59e0b' },
+        MQ9: { min: 1000, max: 20000, default: 2792.15, unit: 'ADC', label: 'MQ9 (Hidrocarburos Medios)', color: '#ec4899' },
         temp: { min: 15, max: 45, default: 28.03, unit: '°C', label: 'Temp. Cámara Gases' },
         humedad: { min: 20, max: 80, default: 37.36, unit: '%', label: 'Hum. Cámara Gases' }
     };
@@ -951,18 +953,18 @@
         const html = `
             <div class="space-y-1">
                 <div class="flex items-center justify-between text-xs">
-                    <span class="text-on-surface-variant font-medium">${config.label}</span>
-                    <span class="font-mono font-bold text-primary" id="val-${key}">${config.default} ${config.unit}</span>
+                    <span class="text-slate-400 font-medium">${config.label}</span>
+                    <span class="font-mono font-bold text-cyan-400" id="val-${key}">${config.default} ${config.unit}</span>
                 </div>
-                <div class="w-full h-2 bg-surface-container rounded-full overflow-hidden border border-outline-variant/30">
-                    <div class="h-full rounded-full transition-all duration-500 ease-out" id="bar-${key}" style="background-color: ${config.color}; width: 0%"></div>
+                <div class="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-cyan-500/20">
+                    <div class="h-full rounded-full transition-all duration-500 ease-out" id="bar-${key}" style="background-color: ${config.color}; width: 0%; box-shadow: 0 0 8px ${config.color};"></div>
                 </div>
             </div>
         `;
         telemetryContainer.insertAdjacentHTML('beforeend', html);
     });
 
-    // Initialize Chart.js
+    // Initialize Chart.js Cyber-Tech Dark
     const ctx = document.getElementById('spectroscopyChart').getContext('2d');
     const chartLabels = Array.from({length: 30}, (_, i) => ""); // Empty placeholders
     const datasets = Object.keys(sensorConfig)
@@ -975,7 +977,7 @@
             borderWidth: 2,
             tension: 0.35,
             pointRadius: 0,
-            pointHoverRadius: 3
+            pointHoverRadius: 4
         }));
 
     const spectroscopyChart = new Chart(ctx, {
@@ -993,12 +995,12 @@
             },
             scales: {
                 x: {
-                    grid: { color: 'rgba(0, 0, 0, 0.03)', drawBorder: false },
-                    ticks: { color: '#747781', font: { family: 'Inter', size: 9 } }
+                    grid: { color: 'rgba(0, 240, 255, 0.1)', drawBorder: false },
+                    ticks: { color: '#94a3b8', font: { family: 'Inter', size: 9 } }
                 },
                 y: {
-                    grid: { color: 'rgba(0, 0, 0, 0.03)', drawBorder: false },
-                    ticks: { color: '#747781', font: { family: 'Inter', size: 9 } }
+                    grid: { color: 'rgba(0, 240, 255, 0.1)', drawBorder: false },
+                    ticks: { color: '#94a3b8', font: { family: 'Inter', size: 9 } }
                 }
             }
         }
